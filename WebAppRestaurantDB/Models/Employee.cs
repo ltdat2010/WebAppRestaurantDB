@@ -12,11 +12,9 @@ namespace WebAppRestaurantDB.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Item
+    public partial class Employee
     {
-        public int ItemId { get; set; }
-        public string ItemName { get; set; }
-        //public Nullable<decimal> ItemPrice { get; set; }
-        public decimal ItemPrice { get; set; }
+        public string EmployeeCode { get; set; }
+        public string EmployeeName { get; set; }
     }
 }

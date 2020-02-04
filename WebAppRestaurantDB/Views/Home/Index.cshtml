@@ -3,40 +3,115 @@
     ViewBag.Title = "Index";
 }
 <script src="~/Scripts/jquery-1.10.2.min.js"></script>
-<script >
+<script type="text/javascript">
     //Use ready() to make a function available after the document is loaded:
-    $(document).ready(function () {
-        $("Item").val();
+    $(document).ready(function () {        
+        $('#Item').change(function () {            
+            var itemId = $('#Item').val();
+            //alert(itemId.toString());
+            GetUnitPriceItem(itemId);            
+        });
+
+        //$('#Quantity').change(function () {
+        //    CalSubTotal();
+        //});
+
+        $('input[type=text]').change(function () {
+            CalSubTotal();
+
+        });
+
+        $('#Addtolist').click(function () {
+            AddItemToList();
+
+        });
+
     });
 
-    function getItemUnitPrice(itemId) { }
-    $.ajax({
-        //async: Set this options to false to perform a synchronous request
-        async: true,
-        //type: The type of request to make, which can be either “POST” or “GET”
-        typr: 'GET',
-        //dataType: The type of data expected back from the server
-        dataType: 'JSON',
-        //contentType: The content type of the data sent to the server
-        contentType : 'application/json; charset = utf-8',
-        //data: The data to send to the server when performing the Ajax request
-        data: { itemId: ItemId },
-        //url: A string containing the URL to which the request is sent
-        url: '/home/getItemUnitPrice',
-        //success: A function to be called if the request succeeds
-        success: function(data){}
-        //error: A function to be called if the request fails
-        error: function() {
-            alert("There is some problems")
-        }
-    });
+    function AddItemToList() {
+        var tblRestaurantItemList = $("#tblReastaurantItemList");
+        var itemName = $("#Item option:selected").text();
+        var itemId = $("#Item").val();
+        var unitPrice = $("#UnitPrice").val();
+        var quantity = $("#Quantity").val();
+        var discount = $("#Discount").val();
+        var total = unitPrice * quantity - discount;//$("#Total").val();
+
+        var itemLine = "<tr><td hidden>" +
+            itemId +
+            "</td><td>" +
+            itemName +
+            "</td><td>" +
+            quantity +
+            "</td><td>" +
+            unitPrice +
+            "</td><td>" +
+            discount +
+            "</td><td>" +
+            total +
+            "</td><td> <input type='button' value='Remove' name=' remove' class=' btn btn-danger' onclick='RemoveItem(this)' /> </td>";
+        tblRestaurantItemList.append(itemLine);
+        ResetItem();
+    }
+
+    function RemoveItem() {
+        
+    }
+
+    function DuplicateAddItem() {
+
+    }
+
+    function ResetItem() {
+        $("#Item").val(0);
+        $("#UnitPrice").val('');
+        $("#Quantity").val('');
+        $("#Discount").val('');
+        
+    }
+
+    function CalSubTotal() {
+        var unitPrice = $('#UnitPrice').val();
+        var quantity = $('#Quantity').val();
+        var discount = $('#Discount').val();
+
+        var total = unitPrice * quantity - discount;
+
+        $('#Total').val(parseFloat(total).toFixed());
+    }
+
+    function GetUnitPriceItem(itemId) {        
+        //alert(itemId.toString());
+        $.ajax({
+            //async: Set this options to false to perform a synchronous request
+            async: true,
+            //type: The type of request to make, which can be either “POST” or “GET”
+            type: 'GET',
+            //dataType: The type of data expected back from the server
+            dataType: 'JSON',
+            //contentType: The content type of the data sent to the server
+            contentType: 'application/json; charset = utf-8',
+            //data: The data to send to the server when performing the Ajax request
+            data: { ItemId: itemId },
+            //url: A string containing the URL to which the request is sent
+            url: '/home/getItemUnitPrice',
+            //success: A function to be called if the request succeeds
+            success: function (data) {
+                $('#UnitPrice').val(parseFloat(data).toFixed(2));
+            },
+            //error: A function to be called if the request fails
+            error: function () {
+                alert('There is some problems with UnitPrice');
+            }
+        });
+    }
 
 </script>
 <style>
     fieldset{
         border: 1px solid #ddd !important ;
         margin:0;
-        xmin-width :0;
+        min-width :0;
         padding:10px;
         position:relative;
         border-radius:4px;
@@ -56,6 +131,8 @@
     }
 
 </style>
+
+
 
 <fieldset>
     <legend>Restaurant</legend>
@@ -81,46 +158,44 @@
     <legend> Restaurant Item</legend>
            <div class=" container">
                <div class=" row">
-                   <div class=" col-md-6">
+                   <div class=" col-md-4">
                        <div class=" form-group">
                            Item :
                            @Html.DropDownList("Item", new SelectList(Model.Item2, "Value", "Text"), new { @class = " form-control" })
                        </div>
                    </div>
-                   <div class=" col-md-6">
+                   <div class=" col-md-4">
                        <div class=" form-group">
                            Unit price :
-                           <input id="Unitprice" readonly="readonly" type="text" class="form-control"/>
+                           <input id="UnitPrice" readonly="readonly" value=" 0.00" type="text" class="form-control" />
                        </div>
                    </div>
-               </div>
-
-               <div class=" row">
-                   <div class=" col-md-6">
+                   <div class=" col-md-4">
                        <div class=" form-group">
                            Quantity :
                            <input id="Quantity" type="text" class=" form-control" />
                        </div>
                    </div>
-                   <div class=" col-md-6">
-                       <div class=" form-group">
-                           Discount :
-                           <input id="Discount" type="text" class=" form-control"/>
-                       </div>
-                   </div>
-               </div>
+               </div>               
 
                <div class=" row">
-                   <div class=" col-md-6">
+
+                   <div class=" col-md-4">
                        <div class=" form-group">
-                           Total :
-                           <input id="Total" readonly="readonly" type="text" class=" form-control" />
+                           Discount :
+                           <input id="Discount" value=" 0.00" type="text" class=" form-control" />
                        </div>
                    </div>
-                   <div class=" col-md-6">
-                       <div class=" form-group">   
-                           
-                           <input id="Addtolist" type="submit" value="Add to list" class=" btn btn-success"/>
+                   <div class=" col-md-4">
+                       <div class=" form-group">
+                           Total :
+                           <input id="Total" value=" 0.00" readonly="readonly" type="text" class=" form-control" />
+                       </div>
+                   </div>
+                   <div class=" col-md-4">
+                       <div class=" form-group">
+
+                           <input id="Addtolist" style="margin-top:18px" type="submit" value="Add to list" class=" btn btn-success" />
                        </div>
                    </div>
                </div>
@@ -131,7 +206,7 @@
     <legend>
         Restaurent list items
     </legend>
-    <table width="100%">
+    <table style ="width : 100%" id="tblReastaurantItemList">
         <tr>
             <th hidden="hidden">
                 Item id
