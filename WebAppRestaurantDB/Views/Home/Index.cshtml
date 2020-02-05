@@ -35,7 +35,7 @@
         var unitPrice = $("#UnitPrice").val();
         var quantity = $("#Quantity").val();
         var discount = $("#Discount").val();
-        var total = unitPrice * quantity - discount;//$("#Total").val();
+        var total = unitPrice * quantity - discount; //$("#Total").val();
 
         var itemLine = "<tr><td hidden>" +
             itemId +
@@ -49,14 +49,81 @@
             discount +
             "</td><td>" +
             total +
-            "</td><td> <input type='button' value='Remove' name=' remove' class=' btn btn-danger' onclick='RemoveItem(this)' /> </td>";
+            "</td><td> <input type='button' value='Select' name=' select' class=' btn btn-success' onclick='SelectItem(this)' ><input type='button' value='Remove' name=' remove' class=' btn btn-danger' onclick='RemoveItem(this)' ></td></tr>";
         tblRestaurantItemList.append(itemLine);
+        FinalTotal();
         ResetItem();
     }
 
-    function RemoveItem() {
+    function FinalTotal() {
+        var finalTotal = 0.00;
+        //alert(finalTotal.toString());
+
+        $("#FinalTotal").val("0.00");
+        $("#tblReastaurantItemList_body").find("tr:gt(0)").each(function () {
+            var Total = parseFloat($(this).find("td:eq(5)").text());
+            finalTotal += Total;
+        });
         
+        $("#FinalTotal").val(parseFloat(finalTotal).toFixed(2));
     }
+
+    function SelectArrObjItem(Item) {        
+        var ItemArr = [];
+
+        // loop over each table row (tr)        
+        $(Item).closest('tr').each(function () {
+            var ItemObj = {};
+            ItemObj.itemId = $(this).find("td:eq(0)").text();
+            //alert(ItemObj.itemId.toString());
+            ItemObj.itemName = $(this).find("td:eq(1)").text();
+            //alert(ItemObj.itemName.toString());
+            ItemObj.quantity = $(this).find("td:eq(2)").text();
+            ItemObj.unitPrice = $(this).find("td:eq(3)").text();
+            ItemObj.discount = $(this).find("td:eq(4)").text();
+            ItemObj.total = $(this).find("td:eq(5)").text();
+
+            //console.log(ItemObj);
+
+            ItemArr.push(ItemObj);
+        });
+
+        //alert(ItemArr);
+        //console.log(ItemArr);
+    }
+
+
+    function SelectItem(Item) {
+        var ItemObj = {};
+        // loop over each table row (tr)        
+        $(Item).closest('tr').each(function () {           
+            ItemObj.itemId = $(this).find("td:eq(0)").text();
+            ItemObj.itemName = $(this).find("td:eq(1)").text();
+            ItemObj.quantity = $(this).find("td:eq(2)").text();
+            ItemObj.unitPrice = $(this).find("td:eq(3)").text();
+            ItemObj.discount = $(this).find("td:eq(4)").text();
+            ItemObj.total = $(this).find("td:eq(5)").text();            
+        });
+
+    }
+
+    function RemoveItem(item) {
+
+        //str = "<input type=\"text\" value=\"apple\">";
+        //str = "<\"text\" value=\"apple\>";
+        //var strObj = $(str);
+        //alert(strObj.val());
+        //var strObj = $(item);
+        //alert(strObj.val());
+        //alert(strObj.text());
+        //alert(strObj.html());
+        $(item).closest('tr').remove();
+
+        /*
+        $("#tblReastaurantItemList").on('click', '.remove', function () {
+            $(this).closest('tr').remove();
+        });*/
+    }    
 
     function DuplicateAddItem() {
 
@@ -66,8 +133,8 @@
         $("#Item").val(0);
         $("#UnitPrice").val('');
         $("#Quantity").val('');
-        $("#Discount").val('');
-        
+        $("#Discount").val('0.00');
+        $("#Total").val('');        
     }
 
     function CalSubTotal() {
@@ -77,7 +144,7 @@
 
         var total = unitPrice * quantity - discount;
 
-        $('#Total').val(parseFloat(total).toFixed());
+        $('#Total').val(parseFloat(total).toFixed(2));
     }
 
     function GetUnitPriceItem(itemId) {        
@@ -128,6 +195,19 @@
         border-radius: 4px;
         padding: 5px 5px 5px 10px;
         background-color:#ffffff;
+    }
+    table {
+        /*height: 250px;*/
+        width: 100%;
+    }
+    th {
+        height: 50px;
+    }
+    tr:hover {
+        background-color: #f5f5f5;
+    }
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
     }
 
 </style>
@@ -206,32 +286,49 @@
     <legend>
         Restaurent list items
     </legend>
-    <table style ="width : 100%" id="tblReastaurantItemList">
-        <tr>
-            <th hidden="hidden">
-                Item id
-            </th>
-            <th>
-                Item name
-            </th>
-            <th>
-                Quantity            
-            </th>
-            <th>
-                Unit price
-            </th>
-            <th>
-                Discount
-            </th>
-            <th>
-                Total
-            </th>
-            <th>
-                Action
-            </th>
-        </tr>
+    <table id="tblReastaurantItemList">
+        <tbody id="tblReastaurantItemList_body">
+            <tr>
+                <th hidden="hidden">
+                    Item id
+                </th>
+                <th>
+                    Item name
+                </th>
+                <th>
+                    Quantity
+                </th>
+                <th>
+                    Unit price
+                </th>
+                <th>
+                    Discount
+                </th>
+                <th>
+                    Total
+                </th>
+                <th>
+                    Action
+                </th>
+            </tr>
+        </tbody>
+        <tfoot id="tblReastaurantItemList_footer">
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                Final total
+            </td>
+            <td>
+                <input type="text" readonly="readonly" id="FinalTotal" class="form-control" />
+            </td>
 
-
-    </table>
+        </tfoot>
+        
+    </table>    
+    <div class="form-group">
+        <input style="float:right" type="button" id="Save" class="btn btn-primary" value="Save" name=" save" />
+    </div>
+    
 </fieldset>
 

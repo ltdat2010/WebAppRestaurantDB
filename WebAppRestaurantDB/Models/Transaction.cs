@@ -12,10 +12,12 @@ namespace WebAppRestaurantDB.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Item
+    public partial class Transaction
     {
+        public int TransactionId { get; set; }
         public int ItemId { get; set; }
-        public string ItemName { get; set; }
-        public decimal ItemPrice { get; set; }
+        public decimal Quantity { get; set; }
+        public System.DateTime TransactionDate { get; set; }
+        public int TypeId { get; set; }
     }
 }
