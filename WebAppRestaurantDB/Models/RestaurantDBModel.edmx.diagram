@@ -13,6 +13,10 @@
         <EntityTypeShape EntityType="RestaurantDBModel.Order" Width="1.5" PointX="5.75" PointY="1" />
         <EntityTypeShape EntityType="RestaurantDBModel.Transaction" Width="1.5" PointX="5.75" PointY="3.75" />
         <AssociationConnector Association="RestaurantDBModel.FK_OrderDetails_Orders" />
+        <EntityTypeShape EntityType="RestaurantDBModel.User" Width="1.5" PointX="0.75" PointY="5.75" />
+        <EntityTypeShape EntityType="RestaurantDBModel.City" Width="1.5" PointX="3.375" PointY="6.75" />
+        <EntityTypeShape EntityType="RestaurantDBModel.Country" Width="1.5" PointX="5.375" PointY="6.75" />
+        <EntityTypeShape EntityType="RestaurantDBModel.UploadFile" Width="1.5" PointX="7.375" PointY="6.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

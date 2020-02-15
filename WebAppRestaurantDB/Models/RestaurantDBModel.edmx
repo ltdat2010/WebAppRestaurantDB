@@ -5,6 +5,23 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="RestaurantDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Cities">
+          <Key>
+            <PropertyRef Name="CityId" />
+          </Key>
+          <Property Name="CityId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CityName" Type="nvarchar" MaxLength="80" />
+          <Property Name="CountryId" Type="int" Nullable="false" />
+          <Property Name="CityCode" Type="nvarchar" MaxLength="40" />
+        </EntityType>
+        <EntityType Name="Countries">
+          <Key>
+            <PropertyRef Name="CountryId" />
+          </Key>
+          <Property Name="CountryId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CountryName" Type="nvarchar" MaxLength="80" />
+          <Property Name="CountryCode" Type="nvarchar" MaxLength="40" />
+        </EntityType>
         <EntityType Name="Customers">
           <Key>
             <PropertyRef Name="CustomerId" />
@@ -17,15 +34,17 @@
             <PropertyRef Name="EmployeeCode" />
           </Key>
           <Property Name="EmployeeCode" Type="nvarchar" MaxLength="40" Nullable="false" />
-          <Property Name="EmployeeName" Type="nvarchar" MaxLength="80" />
+          <Property Name="FirstName" Type="nvarchar" MaxLength="80" />
+          <Property Name="LastName" Type="nvarchar" MaxLength="80" />
+          <Property Name="EmailID" Type="nvarchar" MaxLength="40" />
         </EntityType>
         <EntityType Name="Items">
           <Key>
             <PropertyRef Name="ItemId" />
           </Key>
           <Property Name="ItemId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="ItemName" Type="nvarchar" MaxLength="40" />
-          <Property Name="ItemPrice" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="ItemName" Type="nvarchar" MaxLength="40" Nullable="false" />
+          <Property Name="ItemPrice" Type="decimal" Precision="18" Scale="2" Nullable="false" />
         </EntityType>
         <EntityType Name="Payments">
           <Key>
@@ -33,6 +52,22 @@
           </Key>
           <Property Name="PaymentTypeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="PaymentTypeName" Type="nvarchar" MaxLength="40" />
+        </EntityType>
+        <EntityType Name="Users">
+          <Key>
+            <PropertyRef Name="UserName" />
+          </Key>
+          <Property Name="UserName" Type="nvarchar" MaxLength="40" Nullable="false" />
+          <Property Name="PassWord" Type="ntext" Nullable="false" />
+          <Property Name="CreatedDate" Type="date" />
+          <Property Name="CreatedBy" Type="nvarchar" MaxLength="40" />
+          <Property Name="UserImage" Type="image" />
+          <Property Name="Locked" Type="bit" />
+          <Property Name="Note" Type="ntext" />
+          <Property Name="SocialAccount1" Type="nvarchar" MaxLength="80" />
+          <Property Name="SocialAccount2" Type="nvarchar" MaxLength="80" />
+          <Property Name="SocialAccount3" Type="nvarchar" MaxLength="80" />
+          <Property Name="SocialAccount4" Type="nvarchar" MaxLength="80" />
         </EntityType>
         <EntityType Name="OrderDetails">
           <Key>
@@ -67,6 +102,17 @@
           <Property Name="TransactionDate" Type="datetime" Nullable="false" />
           <Property Name="TypeId" Type="int" Nullable="false" />
         </EntityType>
+        <EntityType Name="UploadFile">
+          <Key>
+            <PropertyRef Name="UploadFileId" />
+          </Key>
+          <Property Name="UploadFileId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UploadFileName" Type="nvarchar" MaxLength="80" Nullable="false" />
+          <Property Name="UploadFilePath" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="UploadFileVersion" Type="nvarchar" MaxLength="3" />
+          <Property Name="SubCatagoryId" Type="int" />
+          <Property Name="UploadFileImage" Type="varbinary(max)" />
+        </EntityType>
         <Association Name="FK_OrderDetails_Orders">
           <End Role="Orders" Type="Self.Orders" Multiplicity="1" />
           <End Role="OrderDetails" Type="Self.OrderDetails" Multiplicity="*" />
@@ -79,14 +125,82 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Function Name="CreateEmployee" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="EmployeeCode" Type="nvarchar" Mode="In" />
+          <Parameter Name="FirstName" Type="nvarchar" Mode="In" />
+          <Parameter Name="LastName" Type="nvarchar" Mode="In" />
+          <Parameter Name="EmailID" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="CreateUploadFile" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="UploadFileName" Type="nvarchar" Mode="In" />
+          <Parameter Name="UploadFilePath" Type="nvarchar" Mode="In" />
+          <Parameter Name="UploadFileVersion" Type="nvarchar" Mode="In" />
+          <Parameter Name="SubCatagoryId" Type="int" Mode="In" />
+        </Function>
+        <Function Name="DeleteEmployee" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="EmployeeCode" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="DeleteUploadFile" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="UploadFileId" Type="int" Mode="In" />
+        </Function>
+        <Function Name="GetAllEmployee" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="GetAllUploadFile" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="GetByCodeEmployee" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="EmployeeCode" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="GetByIdUploadFile" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="UploadFileId" Type="int" Mode="In" />
+        </Function>
+        <Function Name="LockedUser" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="UserName" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="LoginUser" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="UserName" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="RegisterUser" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="UserName" Type="nvarchar" Mode="In" />
+          <Parameter Name="PassWord" Type="ntext" Mode="In" />
+          <Parameter Name="CreatedDate" Type="date" Mode="In" />
+          <Parameter Name="CreatedBy" Type="nvarchar" Mode="In" />
+          <Parameter Name="UserImage" Type="image" Mode="In" />
+          <Parameter Name="Locked" Type="bit" Mode="In" />
+          <Parameter Name="Note" Type="ntext" Mode="In" />
+          <Parameter Name="SocialAccount1" Type="nvarchar" Mode="In" />
+          <Parameter Name="SocialAccount2" Type="nvarchar" Mode="In" />
+          <Parameter Name="SocialAccount3" Type="nvarchar" Mode="In" />
+          <Parameter Name="SocialAccount4" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="SelectEmployee" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="EmployeeCode" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="UnLockedUser" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="UserName" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="UpdateEmployee" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="EmployeeCode" Type="nvarchar" Mode="In" />
+          <Parameter Name="FirstName" Type="nvarchar" Mode="In" />
+          <Parameter Name="LastName" Type="nvarchar" Mode="In" />
+          <Parameter Name="EmailID" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="UpdateUploadFile" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="UploadFileId" Type="int" Mode="In" />
+          <Parameter Name="UploadFileName" Type="nvarchar" Mode="In" />
+          <Parameter Name="UploadFilePath" Type="nvarchar" Mode="In" />
+          <Parameter Name="UploadFileVersion" Type="nvarchar" Mode="In" />
+          <Parameter Name="SubCatagoryId" Type="int" Mode="In" />
+        </Function>
         <EntityContainer Name="RestaurantDBModelStoreContainer">
+          <EntitySet Name="Cities" EntityType="Self.Cities" Schema="Master" store:Type="Tables" />
+          <EntitySet Name="Countries" EntityType="Self.Countries" Schema="Master" store:Type="Tables" />
           <EntitySet Name="Customers" EntityType="Self.Customers" Schema="Master" store:Type="Tables" />
           <EntitySet Name="Employees" EntityType="Self.Employees" Schema="Master" store:Type="Tables" />
           <EntitySet Name="Items" EntityType="Self.Items" Schema="Master" store:Type="Tables" />
           <EntitySet Name="Payments" EntityType="Self.Payments" Schema="Master" store:Type="Tables" />
+          <EntitySet Name="Users" EntityType="Self.Users" Schema="Master" store:Type="Tables" />
           <EntitySet Name="OrderDetails" EntityType="Self.OrderDetails" Schema="Order" store:Type="Tables" />
           <EntitySet Name="Orders" EntityType="Self.Orders" Schema="Order" store:Type="Tables" />
           <EntitySet Name="Transactions" EntityType="Self.Transactions" Schema="Order" store:Type="Tables" />
+          <EntitySet Name="UploadFile" EntityType="Self.UploadFile" Schema="Sale" store:Type="Tables" />
           <AssociationSet Name="FK_OrderDetails_Orders" Association="Self.FK_OrderDetails_Orders">
             <End Role="Orders" EntitySet="Orders" />
             <End Role="OrderDetails" EntitySet="OrderDetails" />
@@ -108,8 +222,8 @@
             <PropertyRef Name="ItemId" />
           </Key>
           <Property Name="ItemId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ItemName" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
-          <Property Name="ItemPrice" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="ItemName" Type="String" MaxLength="40" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ItemPrice" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
         </EntityType>
         <EntityType Name="PaymentType">
           <Key>
@@ -130,13 +244,131 @@
             <End Role="Order" EntitySet="Orders" />
             <End Role="OrderDetail" EntitySet="OrderDetails" />
           </AssociationSet>
+          <EntitySet Name="Users" EntityType="RestaurantDBModel.User" />
+          <FunctionImport Name="CreateEmployees">
+            <Parameter Name="EmployeeCode" Mode="In" Type="String" />
+            <Parameter Name="FirstName" Mode="In" Type="String" />
+            <Parameter Name="LastName" Mode="In" Type="String" />
+            <Parameter Name="EmailID" Mode="In" Type="String" />
+            <Parameter Name="City" Mode="In" Type="String" />
+            <Parameter Name="Country" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="DeleteEmployees">
+            <Parameter Name="EmployeeCode" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="GetAllEmployees" ReturnType="Collection(RestaurantDBModel.GetAllEmployees_Result)" />
+          <FunctionImport Name="GetByCodeEmployees" ReturnType="Collection(RestaurantDBModel.GetByCodeEmployees_Result)">
+            <Parameter Name="EmployeeCode" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="LockedUsers">
+            <Parameter Name="UserName" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="LoginUsers" ReturnType="Collection(String)">
+            <Parameter Name="UserName" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="RegisterUsers">
+            <Parameter Name="UserName" Mode="In" Type="String" />
+            <Parameter Name="PassWord" Mode="In" Type="String" />
+            <Parameter Name="CreatedDate" Mode="In" Type="DateTime" />
+            <Parameter Name="CreatedBy" Mode="In" Type="String" />
+            <Parameter Name="UserImage" Mode="In" Type="Binary" />
+            <Parameter Name="Locked" Mode="In" Type="Boolean" />
+            <Parameter Name="Note" Mode="In" Type="String" />
+            <Parameter Name="SocialAccount1" Mode="In" Type="String" />
+            <Parameter Name="SocialAccount2" Mode="In" Type="String" />
+            <Parameter Name="SocialAccount3" Mode="In" Type="String" />
+            <Parameter Name="SocialAccount4" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="SelectEmployees" ReturnType="Collection(RestaurantDBModel.SelectEmployees_Result)">
+            <Parameter Name="EmployeeCode" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="UnLockedUsers">
+            <Parameter Name="UserName" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="UpdateEmployees">
+            <Parameter Name="EmployeeCode" Mode="In" Type="String" />
+            <Parameter Name="FirstName" Mode="In" Type="String" />
+            <Parameter Name="LastName" Mode="In" Type="String" />
+            <Parameter Name="EmailID" Mode="In" Type="String" />
+            <Parameter Name="City" Mode="In" Type="String" />
+            <Parameter Name="Country" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="CreateEmployee">
+            <Parameter Name="EmployeeCode" Mode="In" Type="String" />
+            <Parameter Name="FirstName" Mode="In" Type="String" />
+            <Parameter Name="LastName" Mode="In" Type="String" />
+            <Parameter Name="EmailID" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="DeleteEmployee">
+          <Parameter Name="EmployeeCode" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="GetAllEmployee" ReturnType="Collection(RestaurantDBModel.GetAllEmployee_Result)" />
+          <FunctionImport Name="GetByCodeEmployee" ReturnType="Collection(RestaurantDBModel.GetByCodeEmployee_Result)">
+          <Parameter Name="EmployeeCode" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="LockedUser">
+          <Parameter Name="UserName" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="LoginUser" ReturnType="Collection(String)">
+          <Parameter Name="UserName" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="RegisterUser">
+            <Parameter Name="UserName" Mode="In" Type="String" />
+            <Parameter Name="PassWord" Mode="In" Type="String" />
+            <Parameter Name="CreatedDate" Mode="In" Type="DateTime" />
+            <Parameter Name="CreatedBy" Mode="In" Type="String" />
+            <Parameter Name="UserImage" Mode="In" Type="Binary" />
+            <Parameter Name="Locked" Mode="In" Type="Boolean" />
+            <Parameter Name="Note" Mode="In" Type="String" />
+            <Parameter Name="SocialAccount1" Mode="In" Type="String" />
+            <Parameter Name="SocialAccount2" Mode="In" Type="String" />
+            <Parameter Name="SocialAccount3" Mode="In" Type="String" />
+            <Parameter Name="SocialAccount4" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="SelectEmployee" ReturnType="Collection(RestaurantDBModel.SelectEmployee_Result)">
+          <Parameter Name="EmployeeCode" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="UnLockedUser">
+          <Parameter Name="UserName" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="UpdateEmployee">
+            <Parameter Name="EmployeeCode" Mode="In" Type="String" />
+            <Parameter Name="FirstName" Mode="In" Type="String" />
+            <Parameter Name="LastName" Mode="In" Type="String" />
+            <Parameter Name="EmailID" Mode="In" Type="String" />
+          </FunctionImport>
+          <EntitySet Name="Cities" EntityType="RestaurantDBModel.City" />
+          <EntitySet Name="Countries" EntityType="RestaurantDBModel.Country" />
+          <FunctionImport Name="CreateUploadFile">
+            <Parameter Name="UploadFileName" Mode="In" Type="String" />
+            <Parameter Name="UploadFilePath" Mode="In" Type="String" />
+            <Parameter Name="UploadFileVersion" Mode="In" Type="String" />
+            <Parameter Name="SubCatagoryId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="DeleteUploadFile">
+          <Parameter Name="UploadFileId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="GetAllUploadFile" ReturnType="Collection(RestaurantDBModel.GetAllUploadFile_Result)" />
+          <FunctionImport Name="GetByIdUploadFile" ReturnType="Collection(RestaurantDBModel.GetByIdUploadFile_Result)">
+          <Parameter Name="UploadFileId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="UpdateUploadFile">
+            <Parameter Name="UploadFileId" Mode="In" Type="Int32" />
+            <Parameter Name="UploadFileName" Mode="In" Type="String" />
+            <Parameter Name="UploadFilePath" Mode="In" Type="String" />
+            <Parameter Name="UploadFileVersion" Mode="In" Type="String" />
+            <Parameter Name="SubCatagoryId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <EntitySet Name="UploadFiles" EntityType="RestaurantDBModel.UploadFile" />
         </EntityContainer>
         <EntityType Name="Employee">
           <Key>
             <PropertyRef Name="EmployeeCode" />
           </Key>
           <Property Name="EmployeeCode" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="true" />
-          <Property Name="EmployeeName" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="FirstName" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="LastName" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="EmailID" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="OrderDetail">
           <Key>
@@ -185,6 +417,112 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="UserName" />
+          </Key>
+          <Property Name="UserName" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="PassWord" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedDate" Type="DateTime" Precision="0" />
+          <Property Name="CreatedBy" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="UserImage" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="Locked" Type="Boolean" />
+          <Property Name="Note" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="SocialAccount1" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="SocialAccount2" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="SocialAccount3" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="SocialAccount4" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <ComplexType Name="GetAllEmployees_Result">
+          <Property Type="String" Name="EmployeeCode" Nullable="false" MaxLength="40" />
+          <Property Type="String" Name="FirstName" Nullable="true" MaxLength="80" />
+          <Property Type="String" Name="LastName" Nullable="true" MaxLength="80" />
+          <Property Type="String" Name="EmailID" Nullable="true" MaxLength="40" />
+          <Property Type="String" Name="City" Nullable="true" MaxLength="40" />
+          <Property Type="String" Name="Country" Nullable="true" MaxLength="40" />
+        </ComplexType>
+        <ComplexType Name="GetByCodeEmployees_Result">
+          <Property Type="String" Name="EmployeeCode" Nullable="false" MaxLength="40" />
+          <Property Type="String" Name="FirstName" Nullable="true" MaxLength="80" />
+          <Property Type="String" Name="LastName" Nullable="true" MaxLength="80" />
+          <Property Type="String" Name="EmailID" Nullable="true" MaxLength="40" />
+          <Property Type="String" Name="City" Nullable="true" MaxLength="40" />
+          <Property Type="String" Name="Country" Nullable="true" MaxLength="40" />
+        </ComplexType>
+        <ComplexType Name="SelectEmployees_Result">
+          <Property Type="String" Name="EmployeeCode" Nullable="false" MaxLength="40" />
+          <Property Type="String" Name="FirstName" Nullable="true" MaxLength="80" />
+          <Property Type="String" Name="LastName" Nullable="true" MaxLength="80" />
+          <Property Type="String" Name="EmailID" Nullable="true" MaxLength="40" />
+          <Property Type="String" Name="City" Nullable="true" MaxLength="40" />
+          <Property Type="String" Name="Country" Nullable="true" MaxLength="40" />
+        </ComplexType>
+        <ComplexType Name="GetAllEmployee_Result">
+          <Property Type="String" Name="EmployeeCode" Nullable="false" MaxLength="40" />
+          <Property Type="String" Name="FirstName" Nullable="true" MaxLength="80" />
+          <Property Type="String" Name="LastName" Nullable="true" MaxLength="80" />
+          <Property Type="String" Name="EmailID" Nullable="true" MaxLength="40" />
+          <Property Type="String" Name="City" Nullable="true" MaxLength="40" />
+          <Property Type="String" Name="Country" Nullable="true" MaxLength="40" />
+        </ComplexType>
+        <ComplexType Name="GetByCodeEmployee_Result">
+          <Property Type="String" Name="EmployeeCode" Nullable="false" MaxLength="40" />
+          <Property Type="String" Name="FirstName" Nullable="true" MaxLength="80" />
+          <Property Type="String" Name="LastName" Nullable="true" MaxLength="80" />
+          <Property Type="String" Name="EmailID" Nullable="true" MaxLength="40" />
+          <Property Type="String" Name="City" Nullable="true" MaxLength="40" />
+          <Property Type="String" Name="Country" Nullable="true" MaxLength="40" />
+        </ComplexType>
+        <ComplexType Name="SelectEmployee_Result">
+          <Property Type="String" Name="EmployeeCode" Nullable="false" MaxLength="40" />
+          <Property Type="String" Name="FirstName" Nullable="true" MaxLength="80" />
+          <Property Type="String" Name="LastName" Nullable="true" MaxLength="80" />
+          <Property Type="String" Name="EmailID" Nullable="true" MaxLength="40" />
+          <Property Type="String" Name="City" Nullable="true" MaxLength="40" />
+          <Property Type="String" Name="Country" Nullable="true" MaxLength="40" />
+        </ComplexType>
+        <EntityType Name="City">
+          <Key>
+            <PropertyRef Name="CityId" />
+          </Key>
+          <Property Name="CityId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CityName" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="CountryId" Type="Int32" Nullable="false" />
+          <Property Name="CityCode" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="Country">
+          <Key>
+            <PropertyRef Name="CountryId" />
+          </Key>
+          <Property Name="CountryId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CountryName" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="CountryCode" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <ComplexType Name="GetAllUploadFile_Result">
+          <Property Type="Int32" Name="UploadFileId" Nullable="false" />
+          <Property Type="String" Name="UploadFileName" Nullable="false" MaxLength="80" />
+          <Property Type="String" Name="UploadFilePath" Nullable="false" MaxLength="250" />
+          <Property Type="String" Name="UploadFileVersion" Nullable="true" MaxLength="3" />
+          <Property Type="Int32" Name="SubCatagoryId" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="GetByIdUploadFile_Result">
+          <Property Type="Int32" Name="UploadFileId" Nullable="false" />
+          <Property Type="String" Name="UploadFileName" Nullable="false" MaxLength="80" />
+          <Property Type="String" Name="UploadFilePath" Nullable="false" MaxLength="250" />
+          <Property Type="String" Name="UploadFileVersion" Nullable="true" MaxLength="3" />
+          <Property Type="Int32" Name="SubCatagoryId" Nullable="true" />
+        </ComplexType>
+        <EntityType Name="UploadFile">
+          <Key>
+            <PropertyRef Name="UploadFileId" />
+          </Key>
+          <Property Name="UploadFileId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UploadFileName" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="UploadFilePath" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="UploadFileVersion" Type="String" MaxLength="3" FixedLength="false" Unicode="true" />
+          <Property Name="SubCatagoryId" Type="Int32" />
+          <Property Name="UploadFileImage" Type="Binary" MaxLength="Max" FixedLength="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -219,7 +557,9 @@
           <EntitySetMapping Name="Employees">
             <EntityTypeMapping TypeName="RestaurantDBModel.Employee">
               <MappingFragment StoreEntitySet="Employees">
-                <ScalarProperty Name="EmployeeName" ColumnName="EmployeeName" />
+                <ScalarProperty Name="EmailID" ColumnName="EmailID" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
                 <ScalarProperty Name="EmployeeCode" ColumnName="EmployeeCode" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -260,7 +600,123 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-        </EntityContainerMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="RestaurantDBModel.User">
+              <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="SocialAccount4" ColumnName="SocialAccount4" />
+                <ScalarProperty Name="SocialAccount3" ColumnName="SocialAccount3" />
+                <ScalarProperty Name="SocialAccount2" ColumnName="SocialAccount2" />
+                <ScalarProperty Name="SocialAccount1" ColumnName="SocialAccount1" />
+                <ScalarProperty Name="Note" ColumnName="Note" />
+                <ScalarProperty Name="Locked" ColumnName="Locked" />
+                <ScalarProperty Name="UserImage" ColumnName="UserImage" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="PassWord" ColumnName="PassWord" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="CreateEmployee" FunctionName="RestaurantDBModel.Store.CreateEmployee" />
+          <FunctionImportMapping FunctionImportName="DeleteEmployee" FunctionName="RestaurantDBModel.Store.DeleteEmployee" />
+          <FunctionImportMapping FunctionImportName="GetAllEmployee" FunctionName="RestaurantDBModel.Store.GetAllEmployee">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="RestaurantDBModel.GetAllEmployee_Result">
+                <ScalarProperty Name="EmployeeCode" ColumnName="EmployeeCode" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="EmailID" ColumnName="EmailID" />
+                <ScalarProperty Name="City" ColumnName="City" />
+                <ScalarProperty Name="Country" ColumnName="Country" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetByCodeEmployee" FunctionName="RestaurantDBModel.Store.GetByCodeEmployee">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="RestaurantDBModel.GetByCodeEmployee_Result">
+                <ScalarProperty Name="EmployeeCode" ColumnName="EmployeeCode" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="EmailID" ColumnName="EmailID" />
+                <ScalarProperty Name="City" ColumnName="City" />
+                <ScalarProperty Name="Country" ColumnName="Country" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="LockedUser" FunctionName="RestaurantDBModel.Store.LockedUser" />
+          <FunctionImportMapping FunctionImportName="LoginUser" FunctionName="RestaurantDBModel.Store.LoginUser" />
+          <FunctionImportMapping FunctionImportName="RegisterUser" FunctionName="RestaurantDBModel.Store.RegisterUser" />
+          <FunctionImportMapping FunctionImportName="SelectEmployee" FunctionName="RestaurantDBModel.Store.SelectEmployee">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="RestaurantDBModel.SelectEmployee_Result">
+                <ScalarProperty Name="EmployeeCode" ColumnName="EmployeeCode" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="EmailID" ColumnName="EmailID" />
+                <ScalarProperty Name="City" ColumnName="City" />
+                <ScalarProperty Name="Country" ColumnName="Country" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="UnLockedUser" FunctionName="RestaurantDBModel.Store.UnLockedUser" />
+          <FunctionImportMapping FunctionImportName="UpdateEmployee" FunctionName="RestaurantDBModel.Store.UpdateEmployee" />
+          <EntitySetMapping Name="Cities">
+            <EntityTypeMapping TypeName="RestaurantDBModel.City">
+              <MappingFragment StoreEntitySet="Cities">
+                <ScalarProperty Name="CityCode" ColumnName="CityCode" />
+                <ScalarProperty Name="CountryId" ColumnName="CountryId" />
+                <ScalarProperty Name="CityName" ColumnName="CityName" />
+                <ScalarProperty Name="CityId" ColumnName="CityId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Countries">
+            <EntityTypeMapping TypeName="RestaurantDBModel.Country">
+              <MappingFragment StoreEntitySet="Countries">
+                <ScalarProperty Name="CountryCode" ColumnName="CountryCode" />
+                <ScalarProperty Name="CountryName" ColumnName="CountryName" />
+                <ScalarProperty Name="CountryId" ColumnName="CountryId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="CreateUploadFile" FunctionName="RestaurantDBModel.Store.CreateUploadFile" />
+          <FunctionImportMapping FunctionImportName="DeleteUploadFile" FunctionName="RestaurantDBModel.Store.DeleteUploadFile" />
+          <FunctionImportMapping FunctionImportName="GetAllUploadFile" FunctionName="RestaurantDBModel.Store.GetAllUploadFile">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="RestaurantDBModel.GetAllUploadFile_Result">
+                <ScalarProperty Name="UploadFileId" ColumnName="UploadFileId" />
+                <ScalarProperty Name="UploadFileName" ColumnName="UploadFileName" />
+                <ScalarProperty Name="UploadFilePath" ColumnName="UploadFilePath" />
+                <ScalarProperty Name="UploadFileVersion" ColumnName="UploadFileVersion" />
+                <ScalarProperty Name="SubCatagoryId" ColumnName="SubCatagoryId" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetByIdUploadFile" FunctionName="RestaurantDBModel.Store.GetByIdUploadFile">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="RestaurantDBModel.GetByIdUploadFile_Result">
+                <ScalarProperty Name="UploadFileId" ColumnName="UploadFileId" />
+                <ScalarProperty Name="UploadFileName" ColumnName="UploadFileName" />
+                <ScalarProperty Name="UploadFilePath" ColumnName="UploadFilePath" />
+                <ScalarProperty Name="UploadFileVersion" ColumnName="UploadFileVersion" />
+                <ScalarProperty Name="SubCatagoryId" ColumnName="SubCatagoryId" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="UpdateUploadFile" FunctionName="RestaurantDBModel.Store.UpdateUploadFile" />
+          <EntitySetMapping Name="UploadFiles">
+            <EntityTypeMapping TypeName="RestaurantDBModel.UploadFile">
+              <MappingFragment StoreEntitySet="UploadFile">
+                <ScalarProperty Name="UploadFileImage" ColumnName="UploadFileImage" />
+                <ScalarProperty Name="SubCatagoryId" ColumnName="SubCatagoryId" />
+                <ScalarProperty Name="UploadFileVersion" ColumnName="UploadFileVersion" />
+                <ScalarProperty Name="UploadFilePath" ColumnName="UploadFilePath" />
+                <ScalarProperty Name="UploadFileName" ColumnName="UploadFileName" />
+                <ScalarProperty Name="UploadFileId" ColumnName="UploadFileId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
   </edmx:Runtime>

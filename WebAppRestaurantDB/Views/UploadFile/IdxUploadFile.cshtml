@@ -1,0 +1,678 @@
+﻿@model WebAppRestaurantDB.ViewModels.UploadFileViewModel
+
+@{
+
+    ViewBag.Title = "UploadFile";
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        //Hidden CRUD
+        $('#CRUD').hide();
+
+        PDFObject.embed("/Upload/pdf/Frontline.pdf", "#example1");
+
+        var _employeeList = $("#UploadFileList").dataTable({
+            "ajax": {
+                "type": "GET",
+                "datatype": "JSON",
+                "url": '/UploadFile/GetAll'
+            },
+            "columns": [
+                { "data": "UploadFileId" },
+                { "data": "UploadFileName" },
+                { "data": "UploadFilePath" },
+                { "data": "UploadFileVersion" },
+                { "data": "SubCatagoryId" },
+                //{ "data": "UploadFileImage" },
+                {
+                    "data": "UploadFileImageBase64",
+                        "render": function (data) {
+                            return "<img src='data:image/jpeg;base64," + data + "' style='width: 70px; height: 70px img-responsive  thumbnail' />";
+
+                    }
+                },
+                { "data": null, "defaultContent": "<button type='button' href='#modalFormViewPDF' id='btnView' class='btn btn-info btn-xs dt-edit' style='margin-right: 5px; '><span class='glyphicon glyphicon-eye-open' aria-hidden='true'></span>  <button type='button' id='btnEdit' class='btn btn-primary btn-xs dt-edit' style='margin-right: 5px;'><span class='glyphicon glyphicon-pencil' aria-hidden='true'></span></button> <button type='button' id='btnDelete' class='btn btn-danger btn-xs dt-delete style='margin-right: 5px; '><span class='glyphicon glyphicon - remove glyphicon-trash' aria-hidden='true'></span></button> "}
+            ]
+        });
+        
+        //button View inside dataTable
+        $('#UploadFileList tbody').on('click', '#btnView', function () {
+            var url = '@Url.Action("GetAttachment", "UploadFile", new { id = "OpenPDF1"})';
+            window.location.href = url;
+        })
+
+        //button Edit inside dataTable
+        $('#UploadFileList tbody').on('click', '#btnEdit', function () {
+            alert("View button click");
+            //Showing modal
+            $('a[href="#modalFormViewPDF"]').trigger('click');
+            //Catching data
+            var data = $("#UploadFileList").DataTable().rows($(this).closest("tr")).data();
+            //pass data to modal
+            $('#modalFormCreateEmployee #EmployeeCode').val(data[0].EmployeeCode);
+            $('#modalFormCreateEmployee #FirstName').val(data[0].FirstName);
+            $('#modalFormCreateEmployee #LastName').val(data[0].LastName);
+            $('#modalFormCreateEmployee #EmailID').val(data[0].EmailID);
+            $('#modalFormCreateEmployee #CRUD').val("U");
+        })
+
+        //button inside dataTable
+        $('#UploadFileList tbody').on('click', '#btnDelete', function () {
+            //Catching data
+            //var data = $("#UploadFileList").DataTable().rows($(this).closest("tr")).data();
+            //var employeeCode = data[0].EmployeeCode;
+
+            //DeleteEmployee(employeeCode);
+            $('a[href="#modalFormViewPDF"]').trigger('click');
+        })
+
+        //Step 1 : Save pdf file to folder /upload/pdf/
+        $('#btnModalUpload').click(function () {
+
+            //// Checking whether FormData is available in browser
+            if (window.FormData != undefined) {
+                var _fileUpload = $('#FileUpload1').get(0);
+                var _files = _fileUpload.files;
+                //alert(_files);
+
+                // Create FormData object
+                var _filedata = new FormData();
+
+                // Looping over all files and add it to FormData object
+                for (var i = 0; i < _files.length; i++) {
+                    //alert(_files[i].name);
+                    _filedata.append(_files[i].name, _files[i]);
+                }
+                // Adding one more key to FormData object
+                _filedata.append('username', 'Manas');
+                //console.log(_filedata.name);
+
+                    $.ajax({
+                        url: '/UploadFile/UploadFile',
+                        type: "POST",
+                        contentType: false, // Not to set any content header
+                        processData: false, // Not to process data
+                        data: _filedata,
+                        success: function (result) {
+                            //alert(result);
+                            //If suceessfull
+                            //Step 2 : upload thumnail + info( name,...) to database
+                            UploadImage()
+                        },
+                        error: function (err) {
+                            //alert(err.statusText);
+                        }
+                    });
+            }
+            else {
+                    alert("FormData is not supported.");
+                }
+
+        })
+
+        //Preview image before upload
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#PreviewImg').attr('src', e.target.result);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        $("#btnBrowseImg").change(function () {
+            readURL(this);
+        });
+
+        //Upload Image
+        //Html
+        //< input type = "file" id = "SelectImage" class="form-control" /> <br />
+        //<a href="#" class="btn btn-sm btn-danger" onclick="UploadImage()">Image</a></div >
+        //<div class="col-md-4 thumbnail" id="UploadedImage">
+
+        //Script
+        function UploadImage() {
+        var file = $("#btnBrowseImg").get(0).files;
+        //alert(file[0].name);
+
+        var data = new FormData;
+            //data.append("ImageFile", file[0]);
+            data.append("httpPostedUploadFileImage", file[0]);
+            //data.append("UploadFileImage", "");
+            //data.append("UploadFileId", 90);
+            //data.append("UploadFileName", "A");
+            //data.append("UploadFilePath", "B");
+            data.append("UploadFileVersion", $("#UploadFileVersion").val());
+            data.append("SubCatagoryId", $("#SubCatagoryId").val());
+            //data.append("UploadFileImageBase64", "");
+
+        //_filedata.append("UploadFileVersion", "2");
+
+            for (var pair of data.entries())
+            console.log(pair[0] + '\\' + pair[1]);
+
+        $.ajax({
+            type: "POST",
+            url: "/UploadFile/UploadFileImage",
+            data: data,
+            contentType: false,
+            processData: false,
+            success: function (imgID) {
+                alert("Image upload successfull");
+                //$("#UploadedImage").append('<img src="/Home/DisplayingImage?imgID=' + imgID + '"class=img-responsive  thumbnail"/>');
+            },
+            error: function (err) {
+                alert(err.statusText);
+            }
+        })
+        }
+
+        $('#btnModalCancel').click(function () {
+            @* window.location.href = '@Url.Action("Create", "Employee")';
+            $("#mdlFrmCreate").modal("show");
+            alert("btnModalSubmit");*@
+            alert($('#modalFormCreateEmployee #CRUD').val());
+        })
+
+
+    });
+
+
+
+    //Save Employee - Using Modal Form
+    function SaveEmployee() {
+        var _jSON = JSON.stringify(
+            {
+                "EmployeeCode": $("#EmployeeCode").val()
+                , "FirstName": $("#FirstName").val()
+                , "LastName": $("#LastName").val()
+                , "EmailID": $("#EmailID").val()
+            }
+        );
+
+        //alert($("#EmployeeCode").val());
+
+        $.ajax({
+            //async: Set this options to false to perform a synchronous request
+            async: true,
+            //type: The type of request to make, which can be either “POST” or “GET”
+            type: 'POST',
+            //dataType: The type of data expected back from the server
+            dataType: 'JSON',
+            //contentType: The content type of the data sent to the server
+            contentType: 'application/json; charset = utf-8',
+            //data: The data to send to the server when performing the Ajax request
+            data: _jSON,
+            //url: A string containing the URL to which the request is sent
+            url: '/employee/create',
+            //success: A function to be called if the request succeeds
+            success: function (dataURL) {
+                @*alert("You will now be redirected.");
+                 window.location.href = "@Url.Content("~/controllername/Index")" + "?id=" + userID + "&feedback=Deleted";*@
+                window.location.href = dataURL;
+            },
+            //error: A function to be called if the request fails
+            error: function (jqXHR, exception) {
+                var msg = '';
+                if (jqXHR.status === 0) {
+                    msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {
+                    msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {
+                    msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') {
+                    msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (exception === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                }
+                $('#post').html(msg);
+            },
+
+        });
+    }
+
+    //Update Employee - Using Modal Form
+    function UpdateEmployee() {
+        var _jSON = JSON.stringify(
+            {
+                "EmployeeCode": $('#modalFormCreateEmployee #EmployeeCode').val()
+                , "FirstName": $('#modalFormCreateEmployee #FirstName').val()
+                , "LastName": $('#modalFormCreateEmployee #LastName').val()
+                , "EmailID": $('#modalFormCreateEmployee #EmailID').val()
+            }
+        );
+
+        //alert($("#EmployeeCode").val());
+
+        $.ajax({
+            //async: Set this options to false to perform a synchronous request
+            async: true,
+            //type: The type of request to make, which can be either “POST” or “GET”
+            type: 'POST',
+            //dataType: The type of data expected back from the server
+            dataType: 'JSON',
+            //contentType: The content type of the data sent to the server
+            contentType: 'application/json; charset = utf-8',
+            //data: The data to send to the server when performing the Ajax request
+            data: _jSON,
+            //url: A string containing the URL to which the request is sent
+            url: '/employee/update',
+            //success: A function to be called if the request succeeds
+            success: function (dataURL) {
+                @* alert("You will now be redirected.");
+                window.location.href = "@Url.Content("~/controllername/Index")" + "?id=" + userID + "&feedback=Deleted";*@
+                window.location.href = dataURL;
+            },
+            //error: A function to be called if the request fails
+            error: function (jqXHR, exception) {
+                var msg = '';
+                if (jqXHR.status === 0) {
+                    msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {
+                    msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {
+                    msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') {
+                    msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (exception === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                }
+                $('#post').html(msg);
+            },
+
+        });
+    }
+
+    //Delete Employee - Using Modal Form
+    function DeleteEmployee(employeeCode) {
+        var _jSON = JSON.stringify(
+            {
+                "EmployeeCode": employeeCode
+            }
+        );
+
+        $.ajax({
+            //async: Set this options to false to perform a synchronous request
+            async: true,
+            //type: The type of request to make, which can be either “POST” or “GET”
+            type: 'POST',
+            //dataType: The type of data expected back from the server
+            dataType: 'JSON',
+            //contentType: The content type of the data sent to the server
+            contentType: 'application/json; charset = utf-8',
+            //data: The data to send to the server when performing the Ajax request
+            data: _jSON,
+            //url: A string containing the URL to which the request is sent
+            url: '/employee/delete',
+            //success: A function to be called if the request succeeds
+            success: function (dataURL) {
+                @* alert("You will now be redirected.");
+                window.location.href = "@Url.Content("~/controllername/Index")" + "?id=" + userID + "&feedback=Deleted";*@
+                window.location.href = dataURL;
+            },
+            //error: A function to be called if the request fails
+            error: function (jqXHR, exception) {
+                var msg = '';
+                if (jqXHR.status === 0) {
+                    msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {
+                    msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {
+                    msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') {
+                    msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (exception === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                }
+                $('#post').html(msg);
+            },
+
+        });
+    }
+
+
+
+                                            //function GetAllEmployee() {
+                                            //    $.ajax({
+                                            //        async: true,
+                                            //        type: 'GET',
+                                            //        datatype: 'JSON',
+                                            //        data:,
+                                            //        contentType: 'application/json charset= utf-8',
+                                            //        url: '/employee/getallemployee',
+                                            //        success: function () {
+
+                                            //        },
+                                            //        error: function () {
+                                            //            alert("Something wrong happened ");
+                                            //        }
+
+                                            //    });
+
+                                            //}
+            //(function () {
+
+            //    // Search function
+            //    $.fn.dataTable.Api.register('alphabetSearch()', function (searchTerm) {
+            //        this.iterator('table', function (context) {
+            //            context.alphabetSearch = searchTerm;
+            //        });
+
+            //        return this;
+            //    });
+
+            //    // Recalculate the alphabet display for updated data
+            //    $.fn.dataTable.Api.register('alphabetSearch.recalc()', function (searchTerm) {
+            //        this.iterator('table', function (context) {
+            //            draw(
+            //                new $.fn.dataTable.Api(context),
+            //                $('div.alphabet', this.table().container())
+            //            );
+            //        });
+
+            //        return this;
+            //    });
+
+
+            //    // Search plug-in
+            //    $.fn.dataTable.ext.search.push(function (context, searchData) {
+            //        // Ensure that there is a search applied to this table before running it
+            //        if (!context.alphabetSearch) {
+            //            return true;
+            //        }
+
+            //        if (searchData[0].charAt(0) === context.alphabetSearch) {
+            //            return true;
+            //        }
+
+            //        return false;
+            //    });
+
+
+            //    // Private support methods
+            //    function bin(data) {
+            //        var letter, bins = {};
+
+            //        for (var i = 0, ien = data.length; i < ien; i++) {
+            //            letter = data[i].charAt(0).toUpperCase();
+
+            //            if (bins[letter]) {
+            //                bins[letter]++;
+            //            }
+            //            else {
+            //                bins[letter] = 1;
+            //            }
+            //        }
+
+            //        return bins;
+            //    }
+
+            //    function draw(table, alphabet) {
+            //        alphabet.empty();
+            //        alphabet.append('Search: ');
+
+            //        var columnData = table.column(0).data();
+            //        var bins = bin(columnData);
+
+            //        $('<span class="clear active"/>')
+            //            .data('letter', '')
+            //            .data('match-count', columnData.length)
+            //            .html('None')
+            //            .appendTo(alphabet);
+
+            //        for (var i = 0; i < 26; i++) {
+            //            var letter = String.fromCharCode(65 + i);
+
+            //            $('<span/>')
+            //                .data('letter', letter)
+            //                .data('match-count', bins[letter] || 0)
+            //                .addClass(!bins[letter] ? 'empty' : '')
+            //                .html(letter)
+            //                .appendTo(alphabet);
+            //        }
+
+            //        $('<div class="alphabetInfo"></div>')
+            //            .appendTo(alphabet);
+            //    }
+
+
+            //    $.fn.dataTable.AlphabetSearch = function (context) {
+            //        var table = new $.fn.dataTable.Api(context);
+            //        var alphabet = $('<div class="alphabet"/>');
+
+            //        draw(table, alphabet);
+
+            //        // Trigger a search
+            //        alphabet.on('click', 'span', function () {
+            //            alphabet.find('.active').removeClass('active');
+            //            $(this).addClass('active');
+
+            //            table
+            //                .alphabetSearch($(this).data('letter'))
+            //                .draw();
+            //        });
+
+            //        // Mouse events to show helper information
+            //        alphabet
+            //            .on('mouseenter', 'span', function () {
+            //                alphabet
+            //                    .find('div.alphabetInfo')
+            //                    .css({
+            //                        opacity: 1,
+            //                        left: $(this).position().left,
+            //                        width: $(this).width()
+            //                    })
+            //                    .html($(this).data('match-count'))
+            //            })
+            //            .on('mouseleave', 'span', function () {
+            //                alphabet
+            //                    .find('div.alphabetInfo')
+            //                    .css('opacity', 0);
+            //            });
+
+            //        // API method to get the alphabet container node
+            //        this.node = function () {
+            //            return alphabet;
+            //        };
+            //    };
+
+            //    $.fn.DataTable.AlphabetSearch = $.fn.dataTable.AlphabetSearch;
+
+
+            //    // Register a search plug-in
+            //    $.fn.dataTable.ext.feature.push({
+            //        fnInit: function (settings) {
+            //            var search = new $.fn.dataTable.AlphabetSearch(settings);
+            //            return search.node();
+            //        },
+            //        cFeature: 'A'
+            //    });
+
+            //}());
+
+
+            //$(document).ready(function () {
+            //    var table = $('#example').DataTable({
+            //        dom: 'Alfrtip'
+            //    });
+            //});
+</script>
+@* Body *@
+<section role="main" class="content-body">
+    <!-- header & breadcums -->
+    <header class="page-header">
+        <h2>Advanced Tables</h2>
+
+        <div class="right-wrapper pull-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="index.html">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>Tables</span></li>
+                <li><span>Advanced</span></li>
+            </ol>
+
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+        </div>
+    </header>
+
+    <!-- start: page -->
+    <!-- basic -->
+    <section class="panel">
+        <header class="panel-heading">
+            <div class="panel-actions">
+                <a href="#" class="fa fa-caret-down"></a>
+                <a href="#" class="fa fa-times"></a>
+            </div>
+
+            <h2 class="panel-title">Basic</h2>
+        </header>
+        <div class="panel-body">
+            <!-- Button Modal -->
+            <a id="btnCreate" style="margin-bottom:10px" class="modal-with-form btn btn-primary" href="#modalFormCreateUploadFile">Upload file</a>
+
+            <table class="table table-bordered table-striped mb-none" id="UploadFileList">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>File Name</th>
+                        <th>Path</th>
+                        <th>Version</th>
+                        <th>Catagory Id</th>
+                        <th hidden="hidden">Image</th>
+                        <th>Image Base64</th>
+                        @*<th>City</th>
+                            <th>Country</th>*@
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <footer class="panel-footer"></footer>
+    </section>
+
+    <!-- Modal Upload File -->
+    <div id="modalFormCreateUploadFile" class="modal-block modal-block-primary mfp-hide">
+        <section class="panel">
+            <header class="panel-heading">
+                <h2 class="panel-title">Upload file</h2>
+            </header>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <input type="text" id="CRUD" value="C" class="form-control" />
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="form-group">
+                                    @Html.Label("File upload")
+                                    <input type="file" id="FileUpload1" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    @Html.Label("Image upload")
+                                    <input type='file' id="btnBrowseImg" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <img id="PreviewImg" style="width:100px;height:100px" src="#" alt="your image" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.UploadFileName)
+                            @Html.TextBoxFor(m => m.UploadFileName, new { @id = "UploadFileName", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.UploadFilePath)
+                            @Html.TextBoxFor(m => m.UploadFilePath, new { @id = "UploadFilePath", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.UploadFileVersion)
+                            @Html.TextBoxFor(m => m.UploadFileVersion, new { @id = "UploadFileVersion", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.SubCatagoryId)
+                            @Html.TextBoxFor(m => m.SubCatagoryId, new { @id = "SubCatagoryId", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="panel-footer">
+                <div class="row">
+                    <div class="col-md-12 text-right">
+                        <button id="btnModalUpload" class="btn btn-primary modal-confirm">Upload</button>
+                        <button id="btnModalCancel" class="btn btn-default modal-dismiss">Cancel</button>
+                    </div>
+                </div>
+            </footer>
+        </section>
+    </div>
+    <!-- Modal View PDF-->
+
+    <div class="modal fade" id="modalFormViewPDF" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width:90%;height:90%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+                </div>
+                <div class="modal-body">
+                    
+                            
+                                <div id="PDFViewer" class="embed-responsive embed-responsive-16by9">
+                                    @*<embed class="embed-responsive-item" src="@Url.Action("GetAttachment", "UploadFile")" type="application/pdf" />
+                                    <embed class="embed-responsive-item" src="https://olmixasiacom-my.sharepoint.com/:b:/g/personal/dat_lt_olmixasia_com/EQb3lU6znsVFnJPyUim6t9UBhARE_ypDOdhse0eXCRoOMQ?e=0uqDi7" type="application/pdf" />*@
+                                    <iframe style="width:100%; height:100%" class="embed-responsive-item" src="@Url.Action("GetAttachment", "UploadFile")"  target="_parent" type="application/pdf" ></iframe>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            
+                                          
+                </div>
+            </div>
+        </div>
+    </div>   
+    
+    <a href="@Url.Action("GetAttachment", "UploadFile")"  id="OpenPDF" target="_blank">Read more</a>
+    
+    <!-- end: page -->
+</section>
+@* End Body *@
+

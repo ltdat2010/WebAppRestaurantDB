@@ -1,0 +1,666 @@
+﻿@*@model Tuple<IEnumerable<SelectListItem>>*@
+@model WebAppRestaurantDB.ViewModels.EmployeeViewModel
+
+@{
+
+    ViewBag.Title = "Employee";
+    //Layout ="~/Views/Shared/_LayoutdataTable.cshtml";
+
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        //var dataSet = [
+        //    ["Tiger Nixon", "System Architect", "Edinburgh", "5421", "2011/04/25", "$320,800"],
+        //    ["Garrett Winters", "Accountant", "Tokyo", "8422", "2011/07/25", "$170,750"],
+        //    ["Ashton Cox", "Junior Technical Author", "San Francisco", "1562", "2009/01/12", "$86,000"],
+        //    ["Cedric Kelly", "Senior Javascript Developer", "Edinburgh", "6224", "2012/03/29", "$433,060"]
+        //];
+        //Hidden CRUD
+        $('#CRUD').hide();
+
+        var _employeeList = $("#EmployeeList").dataTable({
+            ////--data
+            //data: dataSet
+            "ajax": {
+                "type": "GET",
+                "datatype": "JSON",
+                "url": '/Employee/GetAll'
+            },
+            ////--column
+            "columns": [
+                { "data": "EmployeeCode" },
+                { "data": "FirstName" },
+                { "data": "LastName" },
+                { "data": "EmailID" },
+                //{ "data": "City" },
+                //{ "data": "Country" },
+                { "date": null, "defaultContent": "<button type='button' id='btnEdit' class='btn btn-primary btn-xs dt-edit' style='margin - right: 16px; '><span class='glyphicon glyphicon-pencil' aria-hidden='true'></span></button> <button type='button' id='btnDelete' class='btn btn-danger btn-xs dt-delete '><span class='glyphicon glyphicon - remove glyphicon-trash' aria-hidden='true'></span></button> "}
+            ]
+        });
+
+        //button inside dataTable
+        $('#EmployeeList tbody').on('click', '#btnEdit', function () { 
+            //Showing modal 
+            $('a[href="#modalFormCreateEmployee"]').trigger('click');
+            //Catching data
+            var data = $("#EmployeeList").DataTable().rows($(this).closest("tr")).data();
+            //pass data to modal
+            $('#modalFormCreateEmployee #EmployeeCode').val(data[0].EmployeeCode);
+            $('#modalFormCreateEmployee #FirstName').val(data[0].FirstName);
+            $('#modalFormCreateEmployee #LastName').val(data[0].LastName);
+            $('#modalFormCreateEmployee #EmailID').val(data[0].EmailID);
+            $('#modalFormCreateEmployee #CRUD').val("U");           
+        })
+
+        //button inside dataTable
+        $('#EmployeeList tbody').on('click', '#btnDelete', function () {
+            //Catching data
+            var data = $("#EmployeeList").DataTable().rows($(this).closest("tr")).data();
+            var employeeCode = data[0].EmployeeCode;
+            
+            DeleteEmployee(employeeCode);
+        })
+
+        //button
+        $('#btnModalSubmit').click(function () {
+            @*window.location.href = '@Url.Action("Create", "Employee")';
+            $("#mdlFrmCreate").modal("show");
+            alert("btnModalSubmit");*@            
+            if ($('#CRUD').val() == 'C') {
+                SaveEmployee();
+            }
+            else {                
+                UpdateEmployee();
+            }
+            
+        })
+
+        $('#btnModalCancel').click(function () {
+            @* window.location.href = '@Url.Action("Create", "Employee")';
+            $("#mdlFrmCreate").modal("show");
+            alert("btnModalSubmit");*@
+            alert($('#modalFormCreateEmployee #CRUD').val());            
+        })
+
+
+    });
+
+
+
+    //Save Employee - Using Modal Form
+    function SaveEmployee() {
+        var _jSON = JSON.stringify(
+            {
+                "EmployeeCode": $("#EmployeeCode").val()
+                , "FirstName": $("#FirstName").val()
+                , "LastName": $("#LastName").val()
+                , "EmailID": $("#EmailID").val()
+            }
+        );
+
+        //alert($("#EmployeeCode").val());
+
+        $.ajax({
+            //async: Set this options to false to perform a synchronous request
+            async: true,
+            //type: The type of request to make, which can be either “POST” or “GET”
+            type: 'POST',
+            //dataType: The type of data expected back from the server
+            dataType: 'JSON',
+            //contentType: The content type of the data sent to the server
+            contentType: 'application/json; charset = utf-8',
+            //data: The data to send to the server when performing the Ajax request
+            data: _jSON,
+            //url: A string containing the URL to which the request is sent
+            url: '/employee/create',
+            //success: A function to be called if the request succeeds
+            success: function (dataURL) {
+                @*alert("You will now be redirected.");
+                 window.location.href = "@Url.Content("~/controllername/Index")" + "?id=" + userID + "&feedback=Deleted";*@
+                window.location.href = dataURL;
+            },
+            //error: A function to be called if the request fails
+            error: function (jqXHR, exception) {
+                var msg = '';
+                if (jqXHR.status === 0) {
+                    msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {
+                    msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {
+                    msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') {
+                    msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (exception === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                }
+                $('#post').html(msg);
+            },
+
+        });
+    }
+
+    //Update Employee - Using Modal Form
+    function UpdateEmployee() {
+        var _jSON = JSON.stringify(
+            {
+                "EmployeeCode": $('#modalFormCreateEmployee #EmployeeCode').val()
+                , "FirstName": $('#modalFormCreateEmployee #FirstName').val()
+                , "LastName": $('#modalFormCreateEmployee #LastName').val()
+                , "EmailID": $('#modalFormCreateEmployee #EmailID').val()
+            }
+        );
+
+        //alert($("#EmployeeCode").val());
+
+        $.ajax({
+            //async: Set this options to false to perform a synchronous request
+            async: true,
+            //type: The type of request to make, which can be either “POST” or “GET”
+            type: 'POST',
+            //dataType: The type of data expected back from the server
+            dataType: 'JSON',
+            //contentType: The content type of the data sent to the server
+            contentType: 'application/json; charset = utf-8',
+            //data: The data to send to the server when performing the Ajax request
+            data: _jSON,
+            //url: A string containing the URL to which the request is sent
+            url: '/employee/update',
+            //success: A function to be called if the request succeeds
+            success: function (dataURL) {
+                @* alert("You will now be redirected.");
+                window.location.href = "@Url.Content("~/controllername/Index")" + "?id=" + userID + "&feedback=Deleted";*@
+                window.location.href = dataURL;
+            },
+            //error: A function to be called if the request fails
+            error: function (jqXHR, exception) {
+                var msg = '';
+                if (jqXHR.status === 0) {
+                    msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {
+                    msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {
+                    msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') {
+                    msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (exception === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                }
+                $('#post').html(msg);
+            },
+
+        });
+    }
+
+    //Delete Employee - Using Modal Form
+    function DeleteEmployee(employeeCode) {
+        var _jSON = JSON.stringify(
+            {
+                "EmployeeCode": employeeCode                
+            }
+        );
+
+        $.ajax({
+            //async: Set this options to false to perform a synchronous request
+            async: true,
+            //type: The type of request to make, which can be either “POST” or “GET”
+            type: 'POST',
+            //dataType: The type of data expected back from the server
+            dataType: 'JSON',
+            //contentType: The content type of the data sent to the server
+            contentType: 'application/json; charset = utf-8',
+            //data: The data to send to the server when performing the Ajax request
+            data: _jSON,
+            //url: A string containing the URL to which the request is sent
+            url: '/employee/delete',
+            //success: A function to be called if the request succeeds
+            success: function (dataURL) {
+                @* alert("You will now be redirected.");
+                window.location.href = "@Url.Content("~/controllername/Index")" + "?id=" + userID + "&feedback=Deleted";*@
+                window.location.href = dataURL;
+            },
+            //error: A function to be called if the request fails
+            error: function (jqXHR, exception) {
+                var msg = '';
+                if (jqXHR.status === 0) {
+                    msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {
+                    msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {
+                    msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') {
+                    msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (exception === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                }
+                $('#post').html(msg);
+            },
+
+        });
+    }
+
+
+
+                                            //function GetAllEmployee() {
+                                            //    $.ajax({
+                                            //        async: true,
+                                            //        type: 'GET',
+                                            //        datatype: 'JSON',
+                                            //        data:,
+                                            //        contentType: 'application/json charset= utf-8',
+                                            //        url: '/employee/getallemployee',
+                                            //        success: function () {
+
+                                            //        },
+                                            //        error: function () {
+                                            //            alert("Something wrong happened ");
+                                            //        }
+
+                                            //    });
+
+                                            //}
+            //(function () {
+
+            //    // Search function
+            //    $.fn.dataTable.Api.register('alphabetSearch()', function (searchTerm) {
+            //        this.iterator('table', function (context) {
+            //            context.alphabetSearch = searchTerm;
+            //        });
+
+            //        return this;
+            //    });
+
+            //    // Recalculate the alphabet display for updated data
+            //    $.fn.dataTable.Api.register('alphabetSearch.recalc()', function (searchTerm) {
+            //        this.iterator('table', function (context) {
+            //            draw(
+            //                new $.fn.dataTable.Api(context),
+            //                $('div.alphabet', this.table().container())
+            //            );
+            //        });
+
+            //        return this;
+            //    });
+
+
+            //    // Search plug-in
+            //    $.fn.dataTable.ext.search.push(function (context, searchData) {
+            //        // Ensure that there is a search applied to this table before running it
+            //        if (!context.alphabetSearch) {
+            //            return true;
+            //        }
+
+            //        if (searchData[0].charAt(0) === context.alphabetSearch) {
+            //            return true;
+            //        }
+
+            //        return false;
+            //    });
+
+
+            //    // Private support methods
+            //    function bin(data) {
+            //        var letter, bins = {};
+
+            //        for (var i = 0, ien = data.length; i < ien; i++) {
+            //            letter = data[i].charAt(0).toUpperCase();
+
+            //            if (bins[letter]) {
+            //                bins[letter]++;
+            //            }
+            //            else {
+            //                bins[letter] = 1;
+            //            }
+            //        }
+
+            //        return bins;
+            //    }
+
+            //    function draw(table, alphabet) {
+            //        alphabet.empty();
+            //        alphabet.append('Search: ');
+
+            //        var columnData = table.column(0).data();
+            //        var bins = bin(columnData);
+
+            //        $('<span class="clear active"/>')
+            //            .data('letter', '')
+            //            .data('match-count', columnData.length)
+            //            .html('None')
+            //            .appendTo(alphabet);
+
+            //        for (var i = 0; i < 26; i++) {
+            //            var letter = String.fromCharCode(65 + i);
+
+            //            $('<span/>')
+            //                .data('letter', letter)
+            //                .data('match-count', bins[letter] || 0)
+            //                .addClass(!bins[letter] ? 'empty' : '')
+            //                .html(letter)
+            //                .appendTo(alphabet);
+            //        }
+
+            //        $('<div class="alphabetInfo"></div>')
+            //            .appendTo(alphabet);
+            //    }
+
+
+            //    $.fn.dataTable.AlphabetSearch = function (context) {
+            //        var table = new $.fn.dataTable.Api(context);
+            //        var alphabet = $('<div class="alphabet"/>');
+
+            //        draw(table, alphabet);
+
+            //        // Trigger a search
+            //        alphabet.on('click', 'span', function () {
+            //            alphabet.find('.active').removeClass('active');
+            //            $(this).addClass('active');
+
+            //            table
+            //                .alphabetSearch($(this).data('letter'))
+            //                .draw();
+            //        });
+
+            //        // Mouse events to show helper information
+            //        alphabet
+            //            .on('mouseenter', 'span', function () {
+            //                alphabet
+            //                    .find('div.alphabetInfo')
+            //                    .css({
+            //                        opacity: 1,
+            //                        left: $(this).position().left,
+            //                        width: $(this).width()
+            //                    })
+            //                    .html($(this).data('match-count'))
+            //            })
+            //            .on('mouseleave', 'span', function () {
+            //                alphabet
+            //                    .find('div.alphabetInfo')
+            //                    .css('opacity', 0);
+            //            });
+
+            //        // API method to get the alphabet container node
+            //        this.node = function () {
+            //            return alphabet;
+            //        };
+            //    };
+
+            //    $.fn.DataTable.AlphabetSearch = $.fn.dataTable.AlphabetSearch;
+
+
+            //    // Register a search plug-in
+            //    $.fn.dataTable.ext.feature.push({
+            //        fnInit: function (settings) {
+            //            var search = new $.fn.dataTable.AlphabetSearch(settings);
+            //            return search.node();
+            //        },
+            //        cFeature: 'A'
+            //    });
+
+            //}());
+
+
+            //$(document).ready(function () {
+            //    var table = $('#example').DataTable({
+            //        dom: 'Alfrtip'
+            //    });
+            //});
+</script>
+@* Body *@
+<section role="main" class="content-body">
+    <!-- header & breadcums -->
+    <header class="page-header">
+        <h2>Advanced Tables</h2>
+
+        <div class="right-wrapper pull-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="index.html">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>Tables</span></li>
+                <li><span>Advanced</span></li>
+            </ol>
+
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+        </div>
+    </header>
+
+    <!-- start: page -->
+    <!-- basic -->
+    <section class="panel">
+        <header class="panel-heading">
+            <div class="panel-actions">
+                <a href="#" class="fa fa-caret-down"></a>
+                <a href="#" class="fa fa-times"></a>
+            </div>
+
+            <h2 class="panel-title">Basic</h2>
+        </header>
+        <div class="panel-body">
+            <!-- Button Modal -->
+            <a id ="btnCreate" style="margin-bottom:10px" class="modal-with-form btn btn-primary" href="#modalFormCreateEmployee">Create</a>
+
+            <!-- default octopus ui template-->
+            @*<table class="table table-bordered table-striped mb-none" id="datatable-default">
+                    <thead>
+                        <tr>
+                            <th>Rendering engine</th>
+                            <th>Browser</th>
+                            <th>Platform(s)</th>
+                            <th class="hidden-phone">Engine version</th>
+                            <th class="hidden-phone">CSS grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="gradeC">
+                            <td>Misc</td>
+                            <td>PSP browser</td>
+                            <td>PSP</td>
+                            <td class="center hidden-phone">-</td>
+                            <td class="center hidden-phone">C</td>
+                        </tr>
+                    </tbody>
+                </table>*@
+            <table class="table table-bordered table-striped mb-none" id="EmployeeList">
+                <thead>
+                    <tr>
+                        <th>EmployeeCode</th>
+                        <th>FirstName</th>
+                        <th>LastName</th>
+                        <th>EmailID</th>
+                        @*<th>City</th>
+                            <th>Country</th>*@
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <footer class="panel-footer"></footer>
+    </section>
+    <!-- Modal Form -->
+    <div id="modalFormCreateEmployee" class="modal-block modal-block-primary mfp-hide">
+        <section class="panel">
+            <header class="panel-heading">
+                <h2 class="panel-title">Registration Form</h2>
+            </header>
+            <div class="panel-body">
+                @*<form id="demo-form" class="form-horizontal mb-lg" novalidate="novalidate">
+                        <div class="form-group mt-lg">
+                            <label class="col-sm-3 control-label">Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="name" class="form-control" placeholder="Type your name..." required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Email</label>
+                            <div class="col-sm-9">
+                                <input type="email" name="email" class="form-control" placeholder="Type your email..." required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">URL</label>
+                            <div class="col-sm-9">
+                                <input type="url" name="url" class="form-control" placeholder="Type an URL..." />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Comment</label>
+                            <div class="col-sm-9">
+                                <textarea rows="5" class="form-control" placeholder="Type your comment..." required></textarea>
+                            </div>
+                        </div>
+                    </form>*@
+
+                <div class="row">
+                    <input type="text" id="CRUD" value="C" class="form-control" />
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.EmployeeCode)
+                            @Html.TextBoxFor(m => m.EmployeeCode, new { @id = "EmployeeCode", @class = " form-control" })
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.FirstName)
+                            @Html.TextBoxFor(m => m.FirstName, new { @id = "FirstName", @class = "form-control" })
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.LastName)
+                            @Html.TextBoxFor(m => m.LastName, new { @id = "LastName", @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.EmailID)
+                            @Html.TextBoxFor(m => m.EmailID, new { @id = "EmailID", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="panel-footer">
+                <div class="row">
+                    <div class="col-md-12 text-right">
+                        <button id="btnModalSubmit" class="btn btn-primary modal-confirm">Submit</button>
+                        <button id="btnModalCancel" class="btn btn-default modal-dismiss">Cancel</button>
+                    </div>
+                </div>
+            </footer>
+        </section>
+    </div>
+
+
+    <!-- basic with table tools -->
+    @*<section class="panel">
+            <header class="panel-heading">
+                <div class="panel-actions">
+                    <a href="#" class="fa fa-caret-down"></a>
+                    <a href="#" class="fa fa-times"></a>
+                </div>
+
+                <h2 class="panel-title">Basic with Table Tools</h2>
+            </header>
+            <div class="panel-body">
+                <table class="table table-bordered table-striped mb-none" id="datatable-tabletools" data-swf-path="assets/vendor/jquery-datatables/extras/TableTools/swf/copy_csv_xls_pdf.swf">
+                    <thead>
+                        <tr>
+                            <th>Rendering engine</th>
+                            <th>Browser</th>
+                            <th>Platform(s)</th>
+                            <th class="hidden-phone">Engine version</th>
+                            <th class="hidden-phone">CSS grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+
+                        <tr class="gradeA">
+                            <td>Presto</td>
+                            <td>Opera 7.0</td>
+                            <td>Win 95+ / OSX.1+</td>
+                            <td class="center hidden-phone">-</td>
+                            <td class="center hidden-phone">A</td>
+                        </tr>
+                        <tr class="gradeA">
+                            <td>Presto</td>
+                            <td>Opera 7.5</td>
+                            <td>Win 95+ / OSX.2+</td>
+                            <td class="center hidden-phone">-</td>
+                            <td class="center hidden-phone">A</td>
+                        </tr>
+                        <tr class="gradeU">
+                            <td>Other browsers</td>
+                            <td>All others</td>
+                            <td>-</td>
+                            <td class="center hidden-phone">-</td>
+                            <td class="center hidden-phone">U</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>*@
+
+    <!-- rows with details -->
+    @*<section class="panel">
+            <header class="panel-heading">
+                <div class="panel-actions">
+                    <a href="#" class="fa fa-caret-down"></a>
+                    <a href="#" class="fa fa-times"></a>
+                </div>
+
+                <h2 class="panel-title">Rows with Details</h2>
+            </header>
+            <div class="panel-body">
+                <table class="table table-bordered table-striped mb-none" id="datatable-details">
+                    <thead>
+                        <tr>
+                            <th>Rendering engine</th>
+                            <th>Browser</th>
+                            <th>Platform(s)</th>
+                            <th>Engine version</th>
+                            <th>CSS grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="gradeC">
+                            <td>Misc</td>
+                            <td>PSP browser</td>
+                            <td>PSP</td>
+                            <td class="center">-</td>
+                            <td class="center">C</td>
+                        </tr>
+                        <tr class="gradeU">
+                            <td>Other browsers</td>
+                            <td>All others</td>
+                            <td>-</td>
+                            <td class="center">-</td>
+                            <td class="center">U</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>*@
+    <!-- end: page -->
+</section>
+
+
+@* End Body *@
