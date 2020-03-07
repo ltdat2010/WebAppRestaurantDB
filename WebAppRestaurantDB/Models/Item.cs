@@ -17,5 +17,6 @@ namespace WebAppRestaurantDB.Models
         public int ItemId { get; set; }
         public string ItemName { get; set; }
         public decimal ItemPrice { get; set; }
+        public string ItemCode { get; set; }
     }
 }

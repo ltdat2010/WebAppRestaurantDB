@@ -4,19 +4,26 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="7bae6492ea4a434992bd4e00d8711a94" Name="Diagram1">
-        <EntityTypeShape EntityType="RestaurantDBModel.Customer" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="RestaurantDBModel.Item" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="RestaurantDBModel.PaymentType" Width="1.5" PointX="0.75" PointY="2.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="RestaurantDBModel.Employee" Width="1.5" PointX="2.75" PointY="2.75" />
-        <EntityTypeShape EntityType="RestaurantDBModel.OrderDetail" Width="1.5" PointX="8" PointY="1" />
+      <Diagram DiagramId="7bae6492ea4a434992bd4e00d8711a94" Name="Diagram1" ZoomLevel="77">
+        <EntityTypeShape EntityType="RestaurantDBModel.City" Width="1.5" PointX="2.75" PointY="5.75" />
+        <EntityTypeShape EntityType="RestaurantDBModel.Country" Width="1.5" PointX="5.75" PointY="4.75" />
+        <EntityTypeShape EntityType="RestaurantDBModel.Customer" Width="1.5" PointX="7.75" PointY="4.75" />
+        <EntityTypeShape EntityType="RestaurantDBModel.Employee" Width="1.5" PointX="4.75" PointY="7.75" />
+        <EntityTypeShape EntityType="RestaurantDBModel.Item" Width="1.5" PointX="6.75" PointY="7.75" />
         <EntityTypeShape EntityType="RestaurantDBModel.Order" Width="1.5" PointX="5.75" PointY="1" />
-        <EntityTypeShape EntityType="RestaurantDBModel.Transaction" Width="1.5" PointX="5.75" PointY="3.75" />
+        <EntityTypeShape EntityType="RestaurantDBModel.OrderDetail" Width="1.5" PointX="8" PointY="1" />
+        <EntityTypeShape EntityType="RestaurantDBModel.PaymentType" Width="1.5" PointX="0.75" PointY="8.75" />
+        <EntityTypeShape EntityType="RestaurantDBModel.PR" Width="1.5" PointX="0.75" PointY="1" />
+        <EntityTypeShape EntityType="RestaurantDBModel.PRLine" Width="1.5" PointX="3" PointY="1.75" />
+        <EntityTypeShape EntityType="RestaurantDBModel.Transaction" Width="1.5" PointX="8.75" PointY="7.75" />
+        <EntityTypeShape EntityType="RestaurantDBModel.UploadFile" Width="1.5" PointX="9.75" PointY="4.75" />
+        <EntityTypeShape EntityType="RestaurantDBModel.User" Width="1.5" PointX="10.75" PointY="0.75" />
+        <EntityTypeShape EntityType="RestaurantDBModel.VehicleMakeModel" Width="1.5" PointX="2.75" PointY="10.75" />
+        <EntityTypeShape EntityType="RestaurantDBModel.VehicleModel" Width="1.5" PointX="4.75" PointY="10.75" />
+        <EntityTypeShape EntityType="RestaurantDBModel.MenuLeft" Width="1.5" PointX="10.75" PointY="7.75" />
         <AssociationConnector Association="RestaurantDBModel.FK_OrderDetails_Orders" />
-        <EntityTypeShape EntityType="RestaurantDBModel.User" Width="1.5" PointX="0.75" PointY="5.75" />
-        <EntityTypeShape EntityType="RestaurantDBModel.City" Width="1.5" PointX="3.375" PointY="6.75" />
-        <EntityTypeShape EntityType="RestaurantDBModel.Country" Width="1.5" PointX="5.375" PointY="6.75" />
-        <EntityTypeShape EntityType="RestaurantDBModel.UploadFile" Width="1.5" PointX="7.375" PointY="6.75" />
+        <AssociationConnector Association="RestaurantDBModel.FK_PRLines_PR" />
+        <EntityTypeShape EntityType="RestaurantDBModel.Department" Width="1.5" PointX="6.875" PointY="10.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

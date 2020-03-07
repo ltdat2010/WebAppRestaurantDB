@@ -1,0 +1,118 @@
+﻿@model WebAppRestaurantDB.ViewModels.OrderViewModel
+
+<script type="text/javascript">
+    
+    $(document).ready(function(){
+        var _OrderList = $('#OrderList').dataTable({
+            "ajax": {
+                "type": "GET",
+                "datatype": "JSON",
+                "contentType": "application/json; charset=utf-8",
+                "url": "@Url.Action("GetAll","Order")",
+                //"success": function (data) {
+                //    console.log(data);
+                //}
+            }
+            ,
+            columns: [
+                { data: 'OrderId', title: 'OrderId' },
+                { data: 'SelectedPaymentTypeName', title: 'SelectedPaymentTypeName' },
+                { data: 'SelectedCustomerId', title: 'SelectedCustomerId' },
+                { data: 'OrderNumber', title: 'OrderNumber' },
+                { data: 'FinalTotal', title: 'FinalTotal' }
+            ]
+        });
+
+        $('#ddlPaymentType').change(function () {
+
+            alert($(this).val());
+
+        })
+
+        $('#btntest').click(function () {
+            alert($('#ddlPaymentType').val());
+            $('#ddlPaymentType').val(2);
+        })
+
+        //$.ajax({
+        //    url: '/Order/GetAll',
+        //    type: 'POST',
+        //    contentType: 'application/json',
+        //    success: function (result) {
+        //        //if (result.length > 0) {
+        //        //    ddlVehicle.empty().append($("<option></option>")
+        //        //         .attr("value","")
+        //        //         .text("please select"));
+        //        //    $.each(result, function (key, value) {
+
+        //        //        ddlVehicle.append($("<option></option>")
+        //        //         .attr("value", value.Id)
+        //        //         .text(value.VehicleName));
+        //        //    });
+        //        //}
+
+        //        console.log(result);
+        //    }
+        //});
+
+
+    });
+
+    
+
+
+</script>
+<section role="main" class=" content-body">
+    <header class=" page-header">
+        <h2>Order List</h2>
+        <div class=" right-wrapper pull-right">
+            <ol class=" breadcrumb">
+                <li>
+                    <a href=" index.html">
+                        <i class=" fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>Order</span></li>
+                <li><span>List</span></li>
+
+            </ol>
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+        </div>
+    </header>
+    <section class=" panel">
+        <header class=" panel-heading"></header>
+        <div class=" panel-body">
+            <a id=" btnCreate" class=" modal-with-form btn btn-primary" href="#modalFormCreateOrder">Create</a>
+            <div class=" table-responsive">
+                <table class=" table table-bordered table-condensed table-striped mb-none" id="OrderList">
+                    <thead>
+                        <tr>
+                            <td>OrderId</td>
+                            <td>PaymentTypeId</td>
+                            <td>CustomerId</td>
+                            <td>OrderNumber</td>
+                            <td>FinalTotal</td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>            
+
+        </div>
+        <footer class="panel-footer"></footer>        
+    </section>   
+    <section class="panel">
+        @*@using (Html.BeginForm("Search", "Vehicle", FormMethod.Post))
+        {*@
+        <div class="row">
+            <label>Make:</label>
+            @Html.DropDownListFor(m => m.SelectedPaymentTypeId, Model.PaymentTypes, "please select", new { id = "ddlPaymentType", @class = "form-control" })
+            <input type="button" id="btntest" value="Test" name="Test"  class="form-control btn btn-primary" />
+            
+            <br />          
+
+        </div>
+    </section>
+
+
+</section>
+

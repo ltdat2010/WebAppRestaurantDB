@@ -1,10 +1,65 @@
-﻿@{ 
-    Layout = "~/Views/Shared/_LayoutModal.cshtml";
-}
+﻿
+<script type="text/javascript">
+    $(document).ready(function () {
 
+        var _OrderList = $('#tblItem').dataTable({
+            "paging": false,
+            "ordering": false,
+            "info": false,
+            "searching":false,
+            "ajax": {
+                "order": [[1, "desc"]],
+                "type": "GET",
+                "datatype": "JSON",
+                "contentType": "application/json; charset=utf-8",
+                "url": "@Url.Action("GetAll","Item")"
+                //"success": function (data) {
+                //    console.log(data);
+                //}
+                //,
+                //"error": function () {
+                //    Alert("Please contact your admin. Thanks");
+                //}
+            }
+            ,
+
+            columns: [
+                {
+                    data: 'PRNo', title: 'PR Number',
+                    render: function (data) {
+                        return '<a id="btnModalCancel" style="margin-top:10px" class="input-sm" href="" >' + data + '</a>'
+                    }
+
+                },
+                { data: 'SelectedDepartment.DeptName', title: 'Department' },
+                { data: 'Reason', title: 'Reason' },
+                { data: 'RequestedBy', title: 'Requested' },
+                { data: 'RequestedDate', type: "datetime", title: 'Requested Date',
+                    render: function (data) {
+                        return moment(data).format('DD/MM/YYYY');
+                    }
+                },
+                { data: 'ApprovedStatus', title: 'Approved'
+                    ,
+                    render: function (data) {
+                        if (data === true) {
+                            return "<input type='button' value='Approved' name=' select' class=' btn btn-warning btn-xs fa-checked' onclick='SelectItem(this)' >" ;
+                        }
+                        else {
+                            return "<input type='button' value='Select' name=' select' class=' btn btn-success btn-xs' onclick='SelectItem(this)' > <input type='button' id='btnRemove' value='Remove' name=' remove' class=' btn btn-danger  btn-xs' onclick='RemoveItem(this)' >";
+                        }
+                    }
+                }
+                ,
+                //{ data: null, defaultContent: }
+
+            ]
+        });
+
+    });
 <section role="main" class="content-body">
     <header class="page-header">
-        <h2>Modals</h2>
+        <h2>Advanced Tables</h2>
 
         <div class="right-wrapper pull-right">
             <ol class="breadcrumbs">
@@ -13,8 +68,8 @@
                         <i class="fa fa-home"></i>
                     </a>
                 </li>
-                <li><span>UI Elements</span></li>
-                <li><span>Modals</span></li>
+                <li><span>Tables</span></li>
+                <li><span>Advanced</span></li>
             </ol>
 
             <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
@@ -22,112 +77,43 @@
     </header>
 
     <!-- start: page -->
-    <div class="row">
-        <div class="col-md-12">
-            <section class="panel">
-                <header class="panel-heading">
-                    <div class="panel-actions">
-                        <a href="#" class="fa fa-caret-down"></a>
-                        <a href="#" class="fa fa-times"></a>
-                    </div>
+    <section class="panel">
+        <header class="panel-heading">
+            <div class="panel-actions">
+                <a href="#" class="fa fa-caret-down"></a>
+                <a href="#" class="fa fa-times"></a>
+            </div>
 
-                    <h2 class="panel-title">Basic</h2>
-                    <p class="panel-subtitle">Modals are streamlined, but flexible, dialog prompts with the minimum required functionality and smart defaults.</p>
-                </header>
-                <div class="panel-body">
-                    <!-- Modal Bootstrap -->
-                    <a class="mb-xs mt-xs mr-xs btn btn-default" data-toggle="modal" data-target="#modalBootstrap">Bootstrap</a>
+            <h2 class="panel-title">Basic</h2>
+        </header>
+        <div class="panel-body">
+            <table class="table table-bordered table-striped mb-none" id="tblItem">
+                <thead>
+                    <tr>
+                        <th>Rendering engine</th>
+                        <th>Browser</th>
+                        <th>Platform(s)</th>
+                        <th class="hidden-phone">Engine version</th>
+                        <th class="hidden-phone">CSS grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="gradeX">
+                        <td>Trident</td>
+                        <td>
+                            Internet
+                            Explorer 4.0
+                        </td>
+                        <td>Win 95+</td>
+                        <td class="center hidden-phone">4</td>
+                        <td class="center hidden-phone">X</td>
+                    </tr>
 
-                    <div class="modal fade" id="modalBootstrap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                                    <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <p>Are you sure that you want to delete this image?</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-primary">Confirm</button>
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                </tbody>
+            </table>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">            
-            <section class="panel">
-                <header class="panel-heading">
-                    <div class="panel-actions">
-                        <a href="#" class="fa fa-caret-down"></a>
-                        <a href="#" class="fa fa-times"></a>
-                    </div>
+    </section>
 
-                    <h2 class="panel-title">Form</h2>
-                    <p class="panel-subtitle">Modal with a form and buttons.</p>
-                </header>
-                <div class="panel-body">
-                    <a class="modal-with-form btn btn-default" href="#modalForm">Open Form</a>
 
-                    <!-- Modal Form -->
-                    <div id="modalForm" class="modal-block modal-block-primary mfp-hide">
-                        <section class="panel">
-                            <header class="panel-heading">
-                                <h2 class="panel-title">Registration Form</h2>
-                            </header>
-                            <div class="panel-body">
-                                <form id="demo-form" class="form-horizontal mb-lg" novalidate="novalidate">
-                                    <div class="form-group mt-lg">
-                                        <label class="col-sm-3 control-label">Name</label>
-                                        <div class="col-sm-9">
-                                            <input type="text" name="name" class="form-control" placeholder="Type your name..." required />
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-sm-3 control-label">Email</label>
-                                        <div class="col-sm-9">
-                                            <input type="email" name="email" class="form-control" placeholder="Type your email..." required />
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-sm-3 control-label">URL</label>
-                                        <div class="col-sm-9">
-                                            <input type="url" name="url" class="form-control" placeholder="Type an URL..." />
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-sm-3 control-label">Comment</label>
-                                        <div class="col-sm-9">
-                                            <textarea rows="5" class="form-control" placeholder="Type your comment..." required></textarea>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <footer class="panel-footer">
-                                <div class="row">
-                                    <div class="col-md-12 text-right">
-                                        <button class="btn btn-primary modal-confirm">Submit</button>
-                                        <button class="btn btn-default modal-dismiss">Cancel</button>
-                                    </div>
-                                </div>
-                            </footer>
-                        </section>
-                    </div>
-
-                </div>
-            </section>
-            
-        </div>
-    </div>
     <!-- end: page -->
 </section>
-    
-
-
-
-    

@@ -27,17 +27,23 @@ namespace WebAppRestaurantDB.Models
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<Customer> Customers { get; set; }
-        public virtual DbSet<Item> Items { get; set; }
-        public virtual DbSet<PaymentType> PaymentTypes { get; set; }
-        public virtual DbSet<Employee> Employees { get; set; }
-        public virtual DbSet<OrderDetail> OrderDetails { get; set; }
-        public virtual DbSet<Order> Orders { get; set; }
-        public virtual DbSet<Transaction> Transactions { get; set; }
-        public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<City> Cities { get; set; }
         public virtual DbSet<Country> Countries { get; set; }
+        public virtual DbSet<Customer> Customers { get; set; }
+        public virtual DbSet<Employee> Employees { get; set; }
+        public virtual DbSet<Item> Items { get; set; }
+        public virtual DbSet<Order> Orders { get; set; }
+        public virtual DbSet<OrderDetail> OrderDetails { get; set; }
+        public virtual DbSet<PaymentType> PaymentTypes { get; set; }
+        public virtual DbSet<PR> PRs { get; set; }
+        public virtual DbSet<PRLine> PRLines { get; set; }
+        public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<UploadFile> UploadFiles { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<VehicleMakeModel> VehicleMakeModels { get; set; }
+        public virtual DbSet<VehicleModel> VehicleModels { get; set; }
+        public virtual DbSet<MenuLeft> MenuLefts { get; set; }
+        public virtual DbSet<Department> Departments { get; set; }
     
         public virtual int CreateEmployees(string employeeCode, string firstName, string lastName, string emailID, string city, string country)
         {
@@ -399,7 +405,7 @@ namespace WebAppRestaurantDB.Models
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetByIdUploadFile_Result>("GetByIdUploadFile", uploadFileIdParameter);
         }
     
-        public virtual int UpdateUploadFile(Nullable<int> uploadFileId, string uploadFileName, string uploadFilePath, string uploadFileVersion, Nullable<int> subCatagoryId)
+        public virtual int UpdateUploadFile(Nullable<int> uploadFileId, string uploadFileName, string uploadFilePath, string uploadFileVersion, Nullable<int> subCatagoryId, byte[] uploadFileImage)
         {
             var uploadFileIdParameter = uploadFileId.HasValue ?
                 new ObjectParameter("UploadFileId", uploadFileId) :
@@ -421,7 +427,217 @@ namespace WebAppRestaurantDB.Models
                 new ObjectParameter("SubCatagoryId", subCatagoryId) :
                 new ObjectParameter("SubCatagoryId", typeof(int));
     
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("UpdateUploadFile", uploadFileIdParameter, uploadFileNameParameter, uploadFilePathParameter, uploadFileVersionParameter, subCatagoryIdParameter);
+            var uploadFileImageParameter = uploadFileImage != null ?
+                new ObjectParameter("UploadFileImage", uploadFileImage) :
+                new ObjectParameter("UploadFileImage", typeof(byte[]));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("UpdateUploadFile", uploadFileIdParameter, uploadFileNameParameter, uploadFilePathParameter, uploadFileVersionParameter, subCatagoryIdParameter, uploadFileImageParameter);
+        }
+    
+        public virtual int CreateOrder(Nullable<int> paymentTypeId, Nullable<int> customerId, string orderNumber, Nullable<System.DateTime> orderDate, Nullable<decimal> finalTotal)
+        {
+            var paymentTypeIdParameter = paymentTypeId.HasValue ?
+                new ObjectParameter("PaymentTypeId", paymentTypeId) :
+                new ObjectParameter("PaymentTypeId", typeof(int));
+    
+            var customerIdParameter = customerId.HasValue ?
+                new ObjectParameter("CustomerId", customerId) :
+                new ObjectParameter("CustomerId", typeof(int));
+    
+            var orderNumberParameter = orderNumber != null ?
+                new ObjectParameter("OrderNumber", orderNumber) :
+                new ObjectParameter("OrderNumber", typeof(string));
+    
+            var orderDateParameter = orderDate.HasValue ?
+                new ObjectParameter("OrderDate", orderDate) :
+                new ObjectParameter("OrderDate", typeof(System.DateTime));
+    
+            var finalTotalParameter = finalTotal.HasValue ?
+                new ObjectParameter("FinalTotal", finalTotal) :
+                new ObjectParameter("FinalTotal", typeof(decimal));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("CreateOrder", paymentTypeIdParameter, customerIdParameter, orderNumberParameter, orderDateParameter, finalTotalParameter);
+        }
+    
+        public virtual int CreateOrderDetail(Nullable<int> orderId, Nullable<int> itemId, Nullable<decimal> quantity, Nullable<decimal> unitPrice, Nullable<decimal> discount, Nullable<decimal> total)
+        {
+            var orderIdParameter = orderId.HasValue ?
+                new ObjectParameter("OrderId", orderId) :
+                new ObjectParameter("OrderId", typeof(int));
+    
+            var itemIdParameter = itemId.HasValue ?
+                new ObjectParameter("ItemId", itemId) :
+                new ObjectParameter("ItemId", typeof(int));
+    
+            var quantityParameter = quantity.HasValue ?
+                new ObjectParameter("Quantity", quantity) :
+                new ObjectParameter("Quantity", typeof(decimal));
+    
+            var unitPriceParameter = unitPrice.HasValue ?
+                new ObjectParameter("UnitPrice", unitPrice) :
+                new ObjectParameter("UnitPrice", typeof(decimal));
+    
+            var discountParameter = discount.HasValue ?
+                new ObjectParameter("Discount", discount) :
+                new ObjectParameter("Discount", typeof(decimal));
+    
+            var totalParameter = total.HasValue ?
+                new ObjectParameter("Total", total) :
+                new ObjectParameter("Total", typeof(decimal));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("CreateOrderDetail", orderIdParameter, itemIdParameter, quantityParameter, unitPriceParameter, discountParameter, totalParameter);
+        }
+    
+        public virtual int DeleteOrder(Nullable<int> orderId)
+        {
+            var orderIdParameter = orderId.HasValue ?
+                new ObjectParameter("OrderId", orderId) :
+                new ObjectParameter("OrderId", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("DeleteOrder", orderIdParameter);
+        }
+    
+        public virtual int DeleteOrderDetail(Nullable<int> orderDetailId)
+        {
+            var orderDetailIdParameter = orderDetailId.HasValue ?
+                new ObjectParameter("OrderDetailId", orderDetailId) :
+                new ObjectParameter("OrderDetailId", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("DeleteOrderDetail", orderDetailIdParameter);
+        }
+    
+        public virtual ObjectResult<GetAllCustomer_Result> GetAllCustomer()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetAllCustomer_Result>("GetAllCustomer");
+        }
+    
+        public virtual ObjectResult<GetAllItem_Result> GetAllItem()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetAllItem_Result>("GetAllItem");
+        }
+    
+        public virtual ObjectResult<GetAllOrder_Result> GetAllOrder()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetAllOrder_Result>("GetAllOrder");
+        }
+    
+        public virtual ObjectResult<GetAllOrderDetail_Result> GetAllOrderDetail()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetAllOrderDetail_Result>("GetAllOrderDetail");
+        }
+    
+        public virtual ObjectResult<GetAllPaymentType_Result> GetAllPaymentType()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetAllPaymentType_Result>("GetAllPaymentType");
+        }
+    
+        public virtual ObjectResult<GetByIdOrder_Result> GetByIdOrder(Nullable<int> orderId)
+        {
+            var orderIdParameter = orderId.HasValue ?
+                new ObjectParameter("OrderId", orderId) :
+                new ObjectParameter("OrderId", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetByIdOrder_Result>("GetByIdOrder", orderIdParameter);
+        }
+    
+        public virtual ObjectResult<GetByIdOrderDetail_Result> GetByIdOrderDetail(Nullable<int> orderDetailId)
+        {
+            var orderDetailIdParameter = orderDetailId.HasValue ?
+                new ObjectParameter("OrderDetailId", orderDetailId) :
+                new ObjectParameter("OrderDetailId", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetByIdOrderDetail_Result>("GetByIdOrderDetail", orderDetailIdParameter);
+        }
+    
+        public virtual ObjectResult<GetByOrderIdOrderDetail_Result> GetByOrderIdOrderDetail(Nullable<int> orderId)
+        {
+            var orderIdParameter = orderId.HasValue ?
+                new ObjectParameter("OrderId", orderId) :
+                new ObjectParameter("OrderId", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetByOrderIdOrderDetail_Result>("GetByOrderIdOrderDetail", orderIdParameter);
+        }
+    
+        public virtual int UpdateOrder(Nullable<int> orderId, Nullable<int> paymentTypeId, Nullable<int> customerId, string orderNumber, Nullable<System.DateTime> orderDate, Nullable<decimal> finalTotal)
+        {
+            var orderIdParameter = orderId.HasValue ?
+                new ObjectParameter("OrderId", orderId) :
+                new ObjectParameter("OrderId", typeof(int));
+    
+            var paymentTypeIdParameter = paymentTypeId.HasValue ?
+                new ObjectParameter("PaymentTypeId", paymentTypeId) :
+                new ObjectParameter("PaymentTypeId", typeof(int));
+    
+            var customerIdParameter = customerId.HasValue ?
+                new ObjectParameter("CustomerId", customerId) :
+                new ObjectParameter("CustomerId", typeof(int));
+    
+            var orderNumberParameter = orderNumber != null ?
+                new ObjectParameter("OrderNumber", orderNumber) :
+                new ObjectParameter("OrderNumber", typeof(string));
+    
+            var orderDateParameter = orderDate.HasValue ?
+                new ObjectParameter("OrderDate", orderDate) :
+                new ObjectParameter("OrderDate", typeof(System.DateTime));
+    
+            var finalTotalParameter = finalTotal.HasValue ?
+                new ObjectParameter("FinalTotal", finalTotal) :
+                new ObjectParameter("FinalTotal", typeof(decimal));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("UpdateOrder", orderIdParameter, paymentTypeIdParameter, customerIdParameter, orderNumberParameter, orderDateParameter, finalTotalParameter);
+        }
+    
+        public virtual int UpdateOrderDetail(Nullable<int> orderDetailId, Nullable<decimal> quantity, Nullable<decimal> unitPrice, Nullable<decimal> discount, Nullable<decimal> total)
+        {
+            var orderDetailIdParameter = orderDetailId.HasValue ?
+                new ObjectParameter("OrderDetailId", orderDetailId) :
+                new ObjectParameter("OrderDetailId", typeof(int));
+    
+            var quantityParameter = quantity.HasValue ?
+                new ObjectParameter("Quantity", quantity) :
+                new ObjectParameter("Quantity", typeof(decimal));
+    
+            var unitPriceParameter = unitPrice.HasValue ?
+                new ObjectParameter("UnitPrice", unitPrice) :
+                new ObjectParameter("UnitPrice", typeof(decimal));
+    
+            var discountParameter = discount.HasValue ?
+                new ObjectParameter("Discount", discount) :
+                new ObjectParameter("Discount", typeof(decimal));
+    
+            var totalParameter = total.HasValue ?
+                new ObjectParameter("Total", total) :
+                new ObjectParameter("Total", typeof(decimal));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("UpdateOrderDetail", orderDetailIdParameter, quantityParameter, unitPriceParameter, discountParameter, totalParameter);
+        }
+    
+        public virtual ObjectResult<GetByIdCustomer_Result> GetByIdCustomer(Nullable<int> customerId)
+        {
+            var customerIdParameter = customerId.HasValue ?
+                new ObjectParameter("CustomerId", customerId) :
+                new ObjectParameter("CustomerId", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetByIdCustomer_Result>("GetByIdCustomer", customerIdParameter);
+        }
+    
+        public virtual ObjectResult<GetByIdPaymentType_Result> GetByIdPaymentType(Nullable<int> paymentTypeId)
+        {
+            var paymentTypeIdParameter = paymentTypeId.HasValue ?
+                new ObjectParameter("PaymentTypeId", paymentTypeId) :
+                new ObjectParameter("PaymentTypeId", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetByIdPaymentType_Result>("GetByIdPaymentType", paymentTypeIdParameter);
+        }
+    
+        public virtual ObjectResult<GetAllPR_Result> GetAllPR()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetAllPR_Result>("GetAllPR");
+        }
+    
+        public virtual ObjectResult<string> GetMaxPRNo()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<string>("GetMaxPRNo");
         }
     }
 }

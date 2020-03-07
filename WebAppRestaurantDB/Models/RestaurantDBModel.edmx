@@ -5,7 +5,7 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="RestaurantDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
-        <EntityType Name="Cities">
+        <EntityType Name="City">
           <Key>
             <PropertyRef Name="CityId" />
           </Key>
@@ -14,7 +14,7 @@
           <Property Name="CountryId" Type="int" Nullable="false" />
           <Property Name="CityCode" Type="nvarchar" MaxLength="40" />
         </EntityType>
-        <EntityType Name="Countries">
+        <EntityType Name="Country">
           <Key>
             <PropertyRef Name="CountryId" />
           </Key>
@@ -22,14 +22,26 @@
           <Property Name="CountryName" Type="nvarchar" MaxLength="80" />
           <Property Name="CountryCode" Type="nvarchar" MaxLength="40" />
         </EntityType>
-        <EntityType Name="Customers">
+        <EntityType Name="Customer">
           <Key>
             <PropertyRef Name="CustomerId" />
           </Key>
           <Property Name="CustomerId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="CustomerName" Type="nvarchar" MaxLength="40" />
         </EntityType>
-        <EntityType Name="Employees">
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'RestaurantDB.dbo.Department' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="Department">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="DeptCode" />
+            <PropertyRef Name="DeptName" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DeptCode" Type="nvarchar" MaxLength="3" Nullable="false" />
+          <Property Name="DeptName" Type="nvarchar" MaxLength="40" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Employee">
           <Key>
             <PropertyRef Name="EmployeeCode" />
           </Key>
@@ -38,38 +50,41 @@
           <Property Name="LastName" Type="nvarchar" MaxLength="80" />
           <Property Name="EmailID" Type="nvarchar" MaxLength="40" />
         </EntityType>
-        <EntityType Name="Items">
+        <EntityType Name="Item">
           <Key>
             <PropertyRef Name="ItemId" />
           </Key>
           <Property Name="ItemId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ItemName" Type="nvarchar" MaxLength="40" Nullable="false" />
           <Property Name="ItemPrice" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="ItemCode" Type="nvarchar" MaxLength="20" Nullable="false" />
         </EntityType>
-        <EntityType Name="Payments">
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'RestaurantDB.dbo.MenuLeft' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="MenuLeft">
           <Key>
-            <PropertyRef Name="PaymentTypeId" />
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="MenuName" />
+            <PropertyRef Name="ParentId" />
+            <PropertyRef Name="Locked" />
           </Key>
-          <Property Name="PaymentTypeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="PaymentTypeName" Type="nvarchar" MaxLength="40" />
+          <Property Name="Id" Type="int" Nullable="false" />
+          <Property Name="MenuName" Type="nvarchar" MaxLength="80" Nullable="false" />
+          <Property Name="ParentId" Type="int" Nullable="false" />
+          <Property Name="Locked" Type="bit" Nullable="false" />
         </EntityType>
-        <EntityType Name="Users">
+        <EntityType Name="Order">
           <Key>
-            <PropertyRef Name="UserName" />
+            <PropertyRef Name="OrderId" />
           </Key>
-          <Property Name="UserName" Type="nvarchar" MaxLength="40" Nullable="false" />
-          <Property Name="PassWord" Type="ntext" Nullable="false" />
-          <Property Name="CreatedDate" Type="date" />
-          <Property Name="CreatedBy" Type="nvarchar" MaxLength="40" />
-          <Property Name="UserImage" Type="image" />
-          <Property Name="Locked" Type="bit" />
-          <Property Name="Note" Type="ntext" />
-          <Property Name="SocialAccount1" Type="nvarchar" MaxLength="80" />
-          <Property Name="SocialAccount2" Type="nvarchar" MaxLength="80" />
-          <Property Name="SocialAccount3" Type="nvarchar" MaxLength="80" />
-          <Property Name="SocialAccount4" Type="nvarchar" MaxLength="80" />
+          <Property Name="OrderId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PaymentTypeId" Type="int" Nullable="false" />
+          <Property Name="CustomerId" Type="int" Nullable="false" />
+          <Property Name="OrderNumber" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="OrderDate" Type="datetime" Nullable="false" />
+          <Property Name="FinalTotal" Type="decimal" Precision="18" Scale="2" Nullable="false" />
         </EntityType>
-        <EntityType Name="OrderDetails">
+        <EntityType Name="OrderDetail">
           <Key>
             <PropertyRef Name="OrderDetailId" />
           </Key>
@@ -81,18 +96,51 @@
           <Property Name="Discount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="Total" Type="decimal" Precision="18" Scale="2" Nullable="false" />
         </EntityType>
-        <EntityType Name="Orders">
+        <EntityType Name="PaymentType">
           <Key>
-            <PropertyRef Name="OrderId" />
+            <PropertyRef Name="PaymentTypeId" />
           </Key>
-          <Property Name="OrderId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="PaymentTypeId" Type="int" Nullable="false" />
-          <Property Name="CustomerId" Type="int" Nullable="false" />
-          <Property Name="OrderNumber" Type="nvarchar" MaxLength="250" Nullable="false" />
-          <Property Name="OrderDate" Type="datetime" Nullable="false" />
-          <Property Name="FinalTotal" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PaymentTypeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PaymentTypeName" Type="nvarchar" MaxLength="40" />
         </EntityType>
-        <EntityType Name="Transactions">
+        <EntityType Name="PR">
+          <Key>
+            <PropertyRef Name="PRNo" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PRNo" Type="nvarchar" MaxLength="6" Nullable="false" />
+          <Property Name="DeptCode" Type="nvarchar" MaxLength="3" Nullable="false" />
+          <Property Name="PRDate" Type="date" />
+          <Property Name="Reason" Type="ntext" />
+          <Property Name="RequestedBy" Type="nvarchar" MaxLength="40" />
+          <Property Name="RequestedDate" Type="date" />
+          <Property Name="CheckedBy" Type="nvarchar" MaxLength="40" />
+          <Property Name="CheckedDate" Type="date" />
+          <Property Name="ApprovedBy" Type="nvarchar" MaxLength="40" />
+          <Property Name="ApprovedDate" Type="date" />
+          <Property Name="CheckedStatus" Type="bit" />
+          <Property Name="ApprovedStatus" Type="bit" />
+          <Property Name="CreatedDate" Type="date" />
+          <Property Name="CreatedBy" Type="nvarchar" MaxLength="40" />
+          <Property Name="Locked" Type="bit" />
+          <Property Name="Note" Type="ntext" />
+        </EntityType>
+        <EntityType Name="PRLine">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PRNo" Type="nvarchar" MaxLength="6" Nullable="false" />
+          <Property Name="ItemCode" Type="nvarchar" MaxLength="20" />
+          <Property Name="ItemName" Type="nvarchar" MaxLength="80" />
+          <Property Name="UoM" Type="nvarchar" MaxLength="6" />
+          <Property Name="InStock" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="QtyRequest" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="NeededDate" Type="date" />
+          <Property Name="PRLinesStatus" Type="bit" />
+          <Property Name="Price" Type="decimal" Precision="18" Scale="2" />
+        </EntityType>
+        <EntityType Name="Transaction">
           <Key>
             <PropertyRef Name="TransactionId" />
           </Key>
@@ -111,17 +159,60 @@
           <Property Name="UploadFilePath" Type="nvarchar" MaxLength="250" Nullable="false" />
           <Property Name="UploadFileVersion" Type="nvarchar" MaxLength="3" />
           <Property Name="SubCatagoryId" Type="int" />
-          <Property Name="UploadFileImage" Type="varbinary(max)" />
+          <Property Name="UploadFileImage" Type="image" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="UserName" />
+          </Key>
+          <Property Name="UserName" Type="nvarchar" MaxLength="40" Nullable="false" />
+          <Property Name="PassWord" Type="ntext" Nullable="false" />
+          <Property Name="CreatedDate" Type="date" />
+          <Property Name="CreatedBy" Type="nvarchar" MaxLength="40" />
+          <Property Name="UserImage" Type="image" />
+          <Property Name="Locked" Type="bit" />
+          <Property Name="Note" Type="ntext" />
+          <Property Name="SocialAccount1" Type="nvarchar" MaxLength="80" />
+          <Property Name="SocialAccount2" Type="nvarchar" MaxLength="80" />
+          <Property Name="SocialAccount3" Type="nvarchar" MaxLength="80" />
+          <Property Name="SocialAccount4" Type="nvarchar" MaxLength="80" />
+        </EntityType>
+        <EntityType Name="VehicleMakeModel">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MakeName" Type="nvarchar" MaxLength="40" />
+        </EntityType>
+        <EntityType Name="VehicleModel">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MakeId" Type="int" />
+          <Property Name="VehicleName" Type="nvarchar" MaxLength="40" />
         </EntityType>
         <Association Name="FK_OrderDetails_Orders">
-          <End Role="Orders" Type="Self.Orders" Multiplicity="1" />
-          <End Role="OrderDetails" Type="Self.OrderDetails" Multiplicity="*" />
+          <End Role="Order" Type="Self.Order" Multiplicity="1" />
+          <End Role="OrderDetail" Type="Self.OrderDetail" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="Orders">
+            <Principal Role="Order">
               <PropertyRef Name="OrderId" />
             </Principal>
-            <Dependent Role="OrderDetails">
+            <Dependent Role="OrderDetail">
               <PropertyRef Name="OrderId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PRLines_PR">
+          <End Role="PR" Type="Self.PR" Multiplicity="1" />
+          <End Role="PRLine" Type="Self.PRLine" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PR">
+              <PropertyRef Name="PRNo" />
+            </Principal>
+            <Dependent Role="PRLine">
+              <PropertyRef Name="PRNo" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -130,6 +221,21 @@
           <Parameter Name="FirstName" Type="nvarchar" Mode="In" />
           <Parameter Name="LastName" Type="nvarchar" Mode="In" />
           <Parameter Name="EmailID" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="CreateOrder" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="PaymentTypeId" Type="int" Mode="In" />
+          <Parameter Name="CustomerId" Type="int" Mode="In" />
+          <Parameter Name="OrderNumber" Type="nvarchar" Mode="In" />
+          <Parameter Name="OrderDate" Type="datetime" Mode="In" />
+          <Parameter Name="FinalTotal" Type="decimal" Mode="In" />
+        </Function>
+        <Function Name="CreateOrderDetail" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="OrderId" Type="int" Mode="In" />
+          <Parameter Name="ItemId" Type="int" Mode="In" />
+          <Parameter Name="Quantity" Type="decimal" Mode="In" />
+          <Parameter Name="UnitPrice" Type="decimal" Mode="In" />
+          <Parameter Name="Discount" Type="decimal" Mode="In" />
+          <Parameter Name="Total" Type="decimal" Mode="In" />
         </Function>
         <Function Name="CreateUploadFile" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="UploadFileName" Type="nvarchar" Mode="In" />
@@ -140,17 +246,45 @@
         <Function Name="DeleteEmployee" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="EmployeeCode" Type="nvarchar" Mode="In" />
         </Function>
+        <Function Name="DeleteOrder" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="OrderId" Type="int" Mode="In" />
+        </Function>
+        <Function Name="DeleteOrderDetail" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="OrderDetailId" Type="int" Mode="In" />
+        </Function>
         <Function Name="DeleteUploadFile" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="UploadFileId" Type="int" Mode="In" />
         </Function>
+        <Function Name="GetAllCustomer" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <Function Name="GetAllEmployee" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="GetAllItem" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="GetAllOrder" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="GetAllOrderDetail" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="GetAllPaymentType" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="GetAllPR" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <Function Name="GetAllUploadFile" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <Function Name="GetByCodeEmployee" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="EmployeeCode" Type="nvarchar" Mode="In" />
         </Function>
+        <Function Name="GetByIdCustomer" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="CustomerId" Type="int" Mode="In" />
+        </Function>
+        <Function Name="GetByIdOrder" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="OrderId" Type="int" Mode="In" />
+        </Function>
+        <Function Name="GetByIdOrderDetail" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="OrderDetailId" Type="int" Mode="In" />
+        </Function>
+        <Function Name="GetByIdPaymentType" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="PaymentTypeId" Type="int" Mode="In" />
+        </Function>
         <Function Name="GetByIdUploadFile" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="UploadFileId" Type="int" Mode="In" />
         </Function>
+        <Function Name="GetByOrderIdOrderDetail" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="OrderId" Type="int" Mode="In" />
+        </Function>
+        <Function Name="GetMaxPRNo" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <Function Name="LockedUser" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="UserName" Type="nvarchar" Mode="In" />
         </Function>
@@ -182,69 +316,74 @@
           <Parameter Name="LastName" Type="nvarchar" Mode="In" />
           <Parameter Name="EmailID" Type="nvarchar" Mode="In" />
         </Function>
+        <Function Name="UpdateOrder" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="OrderId" Type="int" Mode="In" />
+          <Parameter Name="PaymentTypeId" Type="int" Mode="In" />
+          <Parameter Name="CustomerId" Type="int" Mode="In" />
+          <Parameter Name="OrderNumber" Type="nvarchar" Mode="In" />
+          <Parameter Name="OrderDate" Type="datetime" Mode="In" />
+          <Parameter Name="FinalTotal" Type="decimal" Mode="In" />
+        </Function>
+        <Function Name="UpdateOrderDetail" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="OrderDetailId" Type="int" Mode="In" />
+          <Parameter Name="Quantity" Type="decimal" Mode="In" />
+          <Parameter Name="UnitPrice" Type="decimal" Mode="In" />
+          <Parameter Name="Discount" Type="decimal" Mode="In" />
+          <Parameter Name="Total" Type="decimal" Mode="In" />
+        </Function>
         <Function Name="UpdateUploadFile" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="UploadFileId" Type="int" Mode="In" />
           <Parameter Name="UploadFileName" Type="nvarchar" Mode="In" />
           <Parameter Name="UploadFilePath" Type="nvarchar" Mode="In" />
           <Parameter Name="UploadFileVersion" Type="nvarchar" Mode="In" />
           <Parameter Name="SubCatagoryId" Type="int" Mode="In" />
+          <Parameter Name="UploadFileImage" Type="image" Mode="In" />
         </Function>
         <EntityContainer Name="RestaurantDBModelStoreContainer">
-          <EntitySet Name="Cities" EntityType="Self.Cities" Schema="Master" store:Type="Tables" />
-          <EntitySet Name="Countries" EntityType="Self.Countries" Schema="Master" store:Type="Tables" />
-          <EntitySet Name="Customers" EntityType="Self.Customers" Schema="Master" store:Type="Tables" />
-          <EntitySet Name="Employees" EntityType="Self.Employees" Schema="Master" store:Type="Tables" />
-          <EntitySet Name="Items" EntityType="Self.Items" Schema="Master" store:Type="Tables" />
-          <EntitySet Name="Payments" EntityType="Self.Payments" Schema="Master" store:Type="Tables" />
-          <EntitySet Name="Users" EntityType="Self.Users" Schema="Master" store:Type="Tables" />
-          <EntitySet Name="OrderDetails" EntityType="Self.OrderDetails" Schema="Order" store:Type="Tables" />
-          <EntitySet Name="Orders" EntityType="Self.Orders" Schema="Order" store:Type="Tables" />
-          <EntitySet Name="Transactions" EntityType="Self.Transactions" Schema="Order" store:Type="Tables" />
-          <EntitySet Name="UploadFile" EntityType="Self.UploadFile" Schema="Sale" store:Type="Tables" />
+          <EntitySet Name="City" EntityType="Self.City" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Country" EntityType="Self.Country" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Customer" EntityType="Self.Customer" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Employee" EntityType="Self.Employee" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Item" EntityType="Self.Item" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Order" EntityType="Self.Order" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OrderDetail" EntityType="Self.OrderDetail" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PaymentType" EntityType="Self.PaymentType" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PR" EntityType="Self.PR" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PRLine" EntityType="Self.PRLine" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Transaction" EntityType="Self.Transaction" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="UploadFile" EntityType="Self.UploadFile" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="VehicleMakeModel" EntityType="Self.VehicleMakeModel" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="VehicleModel" EntityType="Self.VehicleModel" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Department" EntityType="Self.Department" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [Department].[Id] AS [Id], 
+    [Department].[DeptCode] AS [DeptCode], 
+    [Department].[DeptName] AS [DeptName]
+    FROM [dbo].[Department] AS [Department]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="MenuLeft" EntityType="Self.MenuLeft" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [MenuLeft].[Id] AS [Id], 
+    [MenuLeft].[MenuName] AS [MenuName], 
+    [MenuLeft].[ParentId] AS [ParentId], 
+    [MenuLeft].[Locked] AS [Locked]
+    FROM [dbo].[MenuLeft] AS [MenuLeft]</DefiningQuery>
+          </EntitySet>
           <AssociationSet Name="FK_OrderDetails_Orders" Association="Self.FK_OrderDetails_Orders">
-            <End Role="Orders" EntitySet="Orders" />
-            <End Role="OrderDetails" EntitySet="OrderDetails" />
+            <End Role="Order" EntitySet="Order" />
+            <End Role="OrderDetail" EntitySet="OrderDetail" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PRLines_PR" Association="Self.FK_PRLines_PR">
+            <End Role="PR" EntitySet="PR" />
+            <End Role="PRLine" EntitySet="PRLine" />
           </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="RestaurantDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="Customer">
-          <Key>
-            <PropertyRef Name="CustomerId" />
-          </Key>
-          <Property Name="CustomerId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="CustomerName" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="Item">
-          <Key>
-            <PropertyRef Name="ItemId" />
-          </Key>
-          <Property Name="ItemId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ItemName" Type="String" MaxLength="40" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="ItemPrice" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
-        </EntityType>
-        <EntityType Name="PaymentType">
-          <Key>
-            <PropertyRef Name="PaymentTypeId" />
-          </Key>
-          <Property Name="PaymentTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="PaymentTypeName" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
-        </EntityType>
         <EntityContainer Name="RestaurantDBEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Customers" EntityType="Self.Customer" />
-          <EntitySet Name="Items" EntityType="Self.Item" />
-          <EntitySet Name="PaymentTypes" EntityType="RestaurantDBModel.PaymentType" />
-          <EntitySet Name="Employees" EntityType="RestaurantDBModel.Employee" />
-          <EntitySet Name="OrderDetails" EntityType="RestaurantDBModel.OrderDetail" />
-          <EntitySet Name="Orders" EntityType="RestaurantDBModel.Order" />
-          <EntitySet Name="Transactions" EntityType="RestaurantDBModel.Transaction" />
-          <AssociationSet Name="FK_OrderDetails_Orders" Association="RestaurantDBModel.FK_OrderDetails_Orders">
-            <End Role="Order" EntitySet="Orders" />
-            <End Role="OrderDetail" EntitySet="OrderDetails" />
-          </AssociationSet>
-          <EntitySet Name="Users" EntityType="RestaurantDBModel.User" />
           <FunctionImport Name="CreateEmployees">
             <Parameter Name="EmployeeCode" Mode="In" Type="String" />
             <Parameter Name="FirstName" Mode="In" Type="String" />
@@ -337,8 +476,6 @@
             <Parameter Name="LastName" Mode="In" Type="String" />
             <Parameter Name="EmailID" Mode="In" Type="String" />
           </FunctionImport>
-          <EntitySet Name="Cities" EntityType="RestaurantDBModel.City" />
-          <EntitySet Name="Countries" EntityType="RestaurantDBModel.Country" />
           <FunctionImport Name="CreateUploadFile">
             <Parameter Name="UploadFileName" Mode="In" Type="String" />
             <Parameter Name="UploadFilePath" Mode="In" Type="String" />
@@ -358,81 +495,92 @@
             <Parameter Name="UploadFilePath" Mode="In" Type="String" />
             <Parameter Name="UploadFileVersion" Mode="In" Type="String" />
             <Parameter Name="SubCatagoryId" Mode="In" Type="Int32" />
+            <Parameter Name="UploadFileImage" Mode="In" Type="Binary" />
           </FunctionImport>
+          <FunctionImport Name="CreateOrder">
+            <Parameter Name="PaymentTypeId" Mode="In" Type="Int32" />
+            <Parameter Name="CustomerId" Mode="In" Type="Int32" />
+            <Parameter Name="OrderNumber" Mode="In" Type="String" />
+            <Parameter Name="OrderDate" Mode="In" Type="DateTime" />
+            <Parameter Name="FinalTotal" Mode="In" Type="Decimal" />
+          </FunctionImport>
+          <FunctionImport Name="CreateOrderDetail">
+            <Parameter Name="OrderId" Mode="In" Type="Int32" />
+            <Parameter Name="ItemId" Mode="In" Type="Int32" />
+            <Parameter Name="Quantity" Mode="In" Type="Decimal" />
+            <Parameter Name="UnitPrice" Mode="In" Type="Decimal" />
+            <Parameter Name="Discount" Mode="In" Type="Decimal" />
+            <Parameter Name="Total" Mode="In" Type="Decimal" />
+          </FunctionImport>
+          <FunctionImport Name="DeleteOrder">
+          <Parameter Name="OrderId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="DeleteOrderDetail">
+          <Parameter Name="OrderDetailId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="GetAllCustomer" ReturnType="Collection(RestaurantDBModel.GetAllCustomer_Result)" />
+          <FunctionImport Name="GetAllItem" ReturnType="Collection(RestaurantDBModel.GetAllItem_Result)" />
+          <FunctionImport Name="GetAllOrder" ReturnType="Collection(RestaurantDBModel.GetAllOrder_Result)" />
+          <FunctionImport Name="GetAllOrderDetail" ReturnType="Collection(RestaurantDBModel.GetAllOrderDetail_Result)" />
+          <FunctionImport Name="GetAllPaymentType" ReturnType="Collection(RestaurantDBModel.GetAllPaymentType_Result)" />
+          <FunctionImport Name="GetByIdOrder" ReturnType="Collection(RestaurantDBModel.GetByIdOrder_Result)">
+          <Parameter Name="OrderId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="GetByIdOrderDetail" ReturnType="Collection(RestaurantDBModel.GetByIdOrderDetail_Result)">
+          <Parameter Name="OrderDetailId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="GetByOrderIdOrderDetail" ReturnType="Collection(RestaurantDBModel.GetByOrderIdOrderDetail_Result)">
+          <Parameter Name="OrderId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="UpdateOrder">
+            <Parameter Name="OrderId" Mode="In" Type="Int32" />
+            <Parameter Name="PaymentTypeId" Mode="In" Type="Int32" />
+            <Parameter Name="CustomerId" Mode="In" Type="Int32" />
+            <Parameter Name="OrderNumber" Mode="In" Type="String" />
+            <Parameter Name="OrderDate" Mode="In" Type="DateTime" />
+            <Parameter Name="FinalTotal" Mode="In" Type="Decimal" />
+          </FunctionImport>
+          <FunctionImport Name="UpdateOrderDetail">
+            <Parameter Name="OrderDetailId" Mode="In" Type="Int32" />
+            <Parameter Name="Quantity" Mode="In" Type="Decimal" />
+            <Parameter Name="UnitPrice" Mode="In" Type="Decimal" />
+            <Parameter Name="Discount" Mode="In" Type="Decimal" />
+            <Parameter Name="Total" Mode="In" Type="Decimal" />
+          </FunctionImport>
+          <FunctionImport Name="GetByIdCustomer" ReturnType="Collection(RestaurantDBModel.GetByIdCustomer_Result)">
+          <Parameter Name="CustomerId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="GetByIdPaymentType" ReturnType="Collection(RestaurantDBModel.GetByIdPaymentType_Result)">
+          <Parameter Name="PaymentTypeId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <EntitySet Name="Cities" EntityType="RestaurantDBModel.City" />
+          <EntitySet Name="Countries" EntityType="RestaurantDBModel.Country" />
+          <EntitySet Name="Customers" EntityType="RestaurantDBModel.Customer" />
+          <EntitySet Name="Employees" EntityType="RestaurantDBModel.Employee" />
+          <EntitySet Name="Items" EntityType="RestaurantDBModel.Item" />
+          <EntitySet Name="Orders" EntityType="RestaurantDBModel.Order" />
+          <EntitySet Name="OrderDetails" EntityType="RestaurantDBModel.OrderDetail" />
+          <EntitySet Name="PaymentTypes" EntityType="RestaurantDBModel.PaymentType" />
+          <EntitySet Name="PRs" EntityType="RestaurantDBModel.PR" />
+          <EntitySet Name="PRLines" EntityType="RestaurantDBModel.PRLine" />
+          <EntitySet Name="Transactions" EntityType="RestaurantDBModel.Transaction" />
           <EntitySet Name="UploadFiles" EntityType="RestaurantDBModel.UploadFile" />
-        </EntityContainer>
-        <EntityType Name="Employee">
-          <Key>
-            <PropertyRef Name="EmployeeCode" />
-          </Key>
-          <Property Name="EmployeeCode" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="true" />
-          <Property Name="FirstName" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
-          <Property Name="LastName" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
-          <Property Name="EmailID" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="OrderDetail">
-          <Key>
-            <PropertyRef Name="OrderDetailId" />
-          </Key>
-          <Property Name="OrderDetailId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="OrderId" Type="Int32" Nullable="false" />
-          <Property Name="ItemId" Type="Int32" Nullable="false" />
-          <Property Name="Quantity" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
-          <Property Name="UnitPrice" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
-          <Property Name="Discount" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
-          <Property Name="Total" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
-          <NavigationProperty Name="Order" Relationship="RestaurantDBModel.FK_OrderDetails_Orders" FromRole="OrderDetail" ToRole="Order" />
-        </EntityType>
-        <EntityType Name="Order">
-          <Key>
-            <PropertyRef Name="OrderId" />
-          </Key>
-          <Property Name="OrderId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="PaymentTypeId" Type="Int32" Nullable="false" />
-          <Property Name="CustomerId" Type="Int32" Nullable="false" />
-          <Property Name="OrderNumber" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="OrderDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="FinalTotal" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
-          <NavigationProperty Name="OrderDetails" Relationship="RestaurantDBModel.FK_OrderDetails_Orders" FromRole="Order" ToRole="OrderDetail" />
-        </EntityType>
-        <EntityType Name="Transaction">
-          <Key>
-            <PropertyRef Name="TransactionId" />
-          </Key>
-          <Property Name="TransactionId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ItemId" Type="Int32" Nullable="false" />
-          <Property Name="Quantity" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
-          <Property Name="TransactionDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="TypeId" Type="Int32" Nullable="false" />
-        </EntityType>
-        <Association Name="FK_OrderDetails_Orders">
-          <End Type="RestaurantDBModel.Order" Role="Order" Multiplicity="1" />
-          <End Type="RestaurantDBModel.OrderDetail" Role="OrderDetail" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Order">
-              <PropertyRef Name="OrderId" />
-            </Principal>
-            <Dependent Role="OrderDetail">
-              <PropertyRef Name="OrderId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <EntityType Name="User">
-          <Key>
-            <PropertyRef Name="UserName" />
-          </Key>
-          <Property Name="UserName" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="true" />
-          <Property Name="PassWord" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="CreatedDate" Type="DateTime" Precision="0" />
-          <Property Name="CreatedBy" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
-          <Property Name="UserImage" Type="Binary" MaxLength="Max" FixedLength="false" />
-          <Property Name="Locked" Type="Boolean" />
-          <Property Name="Note" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="SocialAccount1" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
-          <Property Name="SocialAccount2" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
-          <Property Name="SocialAccount3" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
-          <Property Name="SocialAccount4" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
-        </EntityType>
+          <EntitySet Name="Users" EntityType="RestaurantDBModel.User" />
+          <EntitySet Name="VehicleMakeModels" EntityType="RestaurantDBModel.VehicleMakeModel" />
+          <EntitySet Name="VehicleModels" EntityType="RestaurantDBModel.VehicleModel" />
+          <EntitySet Name="MenuLefts" EntityType="RestaurantDBModel.MenuLeft" />
+          <AssociationSet Name="FK_OrderDetails_Orders" Association="RestaurantDBModel.FK_OrderDetails_Orders">
+            <End Role="Order" EntitySet="Orders" />
+            <End Role="OrderDetail" EntitySet="OrderDetails" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PRLines_PR" Association="RestaurantDBModel.FK_PRLines_PR">
+            <End Role="PR" EntitySet="PRs" />
+            <End Role="PRLine" EntitySet="PRLines" />
+          </AssociationSet>
+          <FunctionImport Name="GetAllPR" ReturnType="Collection(RestaurantDBModel.GetAllPR_Result)" />
+          <EntitySet Name="Departments" EntityType="RestaurantDBModel.Department" />
+          <FunctionImport Name="GetMaxPRNo" ReturnType="Collection(String)" />
+          </EntityContainer>
         <ComplexType Name="GetAllEmployees_Result">
           <Property Type="String" Name="EmployeeCode" Nullable="false" MaxLength="40" />
           <Property Type="String" Name="FirstName" Nullable="true" MaxLength="80" />
@@ -481,6 +629,84 @@
           <Property Type="String" Name="City" Nullable="true" MaxLength="40" />
           <Property Type="String" Name="Country" Nullable="true" MaxLength="40" />
         </ComplexType>
+        <ComplexType Name="GetAllUploadFile_Result">
+          <Property Type="Int32" Name="UploadFileId" Nullable="false" />
+          <Property Type="String" Name="UploadFileName" Nullable="false" MaxLength="80" />
+          <Property Type="String" Name="UploadFilePath" Nullable="false" MaxLength="250" />
+          <Property Type="String" Name="UploadFileVersion" Nullable="true" MaxLength="3" />
+          <Property Type="Int32" Name="SubCatagoryId" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="GetByIdUploadFile_Result">
+          <Property Type="Int32" Name="UploadFileId" Nullable="false" />
+          <Property Type="String" Name="UploadFileName" Nullable="false" MaxLength="80" />
+          <Property Type="String" Name="UploadFilePath" Nullable="false" MaxLength="250" />
+          <Property Type="String" Name="UploadFileVersion" Nullable="true" MaxLength="3" />
+          <Property Type="Int32" Name="SubCatagoryId" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="GetAllCustomer_Result">
+          <Property Type="Int32" Name="CustomerId" Nullable="false" />
+          <Property Type="String" Name="CustomerName" Nullable="true" MaxLength="40" />
+        </ComplexType>
+        <ComplexType Name="GetAllItem_Result">
+          <Property Type="Int32" Name="ItemId" Nullable="false" />
+          <Property Type="String" Name="ItemName" Nullable="false" MaxLength="40" />
+          <Property Type="Decimal" Name="ItemPrice" Nullable="false" Precision="18" Scale="2" />
+        </ComplexType>
+        <ComplexType Name="GetAllOrder_Result">
+          <Property Type="Int32" Name="OrderId" Nullable="false" />
+          <Property Type="Int32" Name="PaymentTypeId" Nullable="false" />
+          <Property Type="Int32" Name="CustomerId" Nullable="false" />
+          <Property Type="String" Name="OrderNumber" Nullable="false" MaxLength="250" />
+          <Property Type="DateTime" Name="OrderDate" Nullable="false" Precision="23" />
+          <Property Type="Decimal" Name="FinalTotal" Nullable="false" Precision="18" Scale="2" />
+        </ComplexType>
+        <ComplexType Name="GetAllOrderDetail_Result">
+          <Property Type="Int32" Name="OrderDetailId" Nullable="false" />
+          <Property Type="Int32" Name="OrderId" Nullable="false" />
+          <Property Type="Int32" Name="ItemId" Nullable="false" />
+          <Property Type="Decimal" Name="Quantity" Nullable="false" Precision="18" Scale="2" />
+          <Property Type="Decimal" Name="UnitPrice" Nullable="false" Precision="18" Scale="2" />
+          <Property Type="Decimal" Name="Discount" Nullable="false" Precision="18" Scale="2" />
+          <Property Type="Decimal" Name="Total" Nullable="false" Precision="18" Scale="2" />
+        </ComplexType>
+        <ComplexType Name="GetAllPaymentType_Result">
+          <Property Type="Int32" Name="PaymentTypeId" Nullable="false" />
+          <Property Type="String" Name="PaymentTypeName" Nullable="true" MaxLength="40" />
+        </ComplexType>
+        <ComplexType Name="GetByIdOrder_Result">
+          <Property Type="Int32" Name="OrderId" Nullable="false" />
+          <Property Type="Int32" Name="PaymentTypeId" Nullable="false" />
+          <Property Type="Int32" Name="CustomerId" Nullable="false" />
+          <Property Type="String" Name="OrderNumber" Nullable="false" MaxLength="250" />
+          <Property Type="DateTime" Name="OrderDate" Nullable="false" Precision="23" />
+          <Property Type="Decimal" Name="FinalTotal" Nullable="false" Precision="18" Scale="2" />
+        </ComplexType>
+        <ComplexType Name="GetByIdOrderDetail_Result">
+          <Property Type="Int32" Name="OrderDetailId" Nullable="false" />
+          <Property Type="Int32" Name="OrderId" Nullable="false" />
+          <Property Type="Int32" Name="ItemId" Nullable="false" />
+          <Property Type="Decimal" Name="Quantity" Nullable="false" Precision="18" Scale="2" />
+          <Property Type="Decimal" Name="UnitPrice" Nullable="false" Precision="18" Scale="2" />
+          <Property Type="Decimal" Name="Discount" Nullable="false" Precision="18" Scale="2" />
+          <Property Type="Decimal" Name="Total" Nullable="false" Precision="18" Scale="2" />
+        </ComplexType>
+        <ComplexType Name="GetByOrderIdOrderDetail_Result">
+          <Property Type="Int32" Name="OrderDetailId" Nullable="false" />
+          <Property Type="Int32" Name="OrderId" Nullable="false" />
+          <Property Type="Int32" Name="ItemId" Nullable="false" />
+          <Property Type="Decimal" Name="Quantity" Nullable="false" Precision="18" Scale="2" />
+          <Property Type="Decimal" Name="UnitPrice" Nullable="false" Precision="18" Scale="2" />
+          <Property Type="Decimal" Name="Discount" Nullable="false" Precision="18" Scale="2" />
+          <Property Type="Decimal" Name="Total" Nullable="false" Precision="18" Scale="2" />
+        </ComplexType>
+        <ComplexType Name="GetByIdCustomer_Result">
+          <Property Type="Int32" Name="CustomerId" Nullable="false" />
+          <Property Type="String" Name="CustomerName" Nullable="true" MaxLength="40" />
+        </ComplexType>
+        <ComplexType Name="GetByIdPaymentType_Result">
+          <Property Type="Int32" Name="PaymentTypeId" Nullable="false" />
+          <Property Type="String" Name="PaymentTypeName" Nullable="true" MaxLength="40" />
+        </ComplexType>
         <EntityType Name="City">
           <Key>
             <PropertyRef Name="CityId" />
@@ -498,20 +724,112 @@
           <Property Name="CountryName" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
           <Property Name="CountryCode" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
         </EntityType>
-        <ComplexType Name="GetAllUploadFile_Result">
-          <Property Type="Int32" Name="UploadFileId" Nullable="false" />
-          <Property Type="String" Name="UploadFileName" Nullable="false" MaxLength="80" />
-          <Property Type="String" Name="UploadFilePath" Nullable="false" MaxLength="250" />
-          <Property Type="String" Name="UploadFileVersion" Nullable="true" MaxLength="3" />
-          <Property Type="Int32" Name="SubCatagoryId" Nullable="true" />
-        </ComplexType>
-        <ComplexType Name="GetByIdUploadFile_Result">
-          <Property Type="Int32" Name="UploadFileId" Nullable="false" />
-          <Property Type="String" Name="UploadFileName" Nullable="false" MaxLength="80" />
-          <Property Type="String" Name="UploadFilePath" Nullable="false" MaxLength="250" />
-          <Property Type="String" Name="UploadFileVersion" Nullable="true" MaxLength="3" />
-          <Property Type="Int32" Name="SubCatagoryId" Nullable="true" />
-        </ComplexType>
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="CustomerId" />
+          </Key>
+          <Property Name="CustomerId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CustomerName" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="EmployeeCode" />
+          </Key>
+          <Property Name="EmployeeCode" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="FirstName" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="LastName" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="EmailID" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="Item">
+          <Key>
+            <PropertyRef Name="ItemId" />
+          </Key>
+          <Property Name="ItemId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ItemName" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="ItemPrice" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="ItemCode" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="Order">
+          <Key>
+            <PropertyRef Name="OrderId" />
+          </Key>
+          <Property Name="OrderId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PaymentTypeId" Type="Int32" Nullable="false" />
+          <Property Name="CustomerId" Type="Int32" Nullable="false" />
+          <Property Name="OrderNumber" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="OrderDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="FinalTotal" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <NavigationProperty Name="OrderDetails" Relationship="RestaurantDBModel.FK_OrderDetails_Orders" FromRole="Order" ToRole="OrderDetail" />
+        </EntityType>
+        <EntityType Name="OrderDetail">
+          <Key>
+            <PropertyRef Name="OrderDetailId" />
+          </Key>
+          <Property Name="OrderDetailId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="OrderId" Type="Int32" Nullable="false" />
+          <Property Name="ItemId" Type="Int32" Nullable="false" />
+          <Property Name="Quantity" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="UnitPrice" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="Discount" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="Total" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <NavigationProperty Name="Order" Relationship="RestaurantDBModel.FK_OrderDetails_Orders" FromRole="OrderDetail" ToRole="Order" />
+        </EntityType>
+        <EntityType Name="PaymentType">
+          <Key>
+            <PropertyRef Name="PaymentTypeId" />
+          </Key>
+          <Property Name="PaymentTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PaymentTypeName" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="PR">
+          <Key>
+            <PropertyRef Name="PRNo" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PRNo" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="true" />
+          <Property Name="PRDate" Type="DateTime" Precision="0" />
+          <Property Name="Reason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="RequestedBy" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="RequestedDate" Type="DateTime" Precision="0" />
+          <Property Name="CheckedBy" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="CheckedDate" Type="DateTime" Precision="0" />
+          <Property Name="ApprovedBy" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="ApprovedDate" Type="DateTime" Precision="0" />
+          <Property Name="CheckedStatus" Type="Boolean" />
+          <Property Name="ApprovedStatus" Type="Boolean" />
+          <Property Name="CreatedDate" Type="DateTime" Precision="0" />
+          <Property Name="CreatedBy" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="Locked" Type="Boolean" />
+          <Property Name="Note" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="PRLines" Relationship="RestaurantDBModel.FK_PRLines_PR" FromRole="PR" ToRole="PRLine" />
+          <Property Name="DeptCode" Type="String" Nullable="false" MaxLength="3" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="PRLine">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PRNo" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="true" />
+          <Property Name="ItemCode" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="ItemName" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="UoM" Type="String" MaxLength="6" FixedLength="false" Unicode="true" />
+          <Property Name="InStock" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="QtyRequest" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="NeededDate" Type="DateTime" Precision="0" />
+          <Property Name="PRLinesStatus" Type="Boolean" />
+          <Property Name="Price" Type="Decimal" Precision="18" Scale="2" />
+          <NavigationProperty Name="PR" Relationship="RestaurantDBModel.FK_PRLines_PR" FromRole="PRLine" ToRole="PR" />
+        </EntityType>
+        <EntityType Name="Transaction">
+          <Key>
+            <PropertyRef Name="TransactionId" />
+          </Key>
+          <Property Name="TransactionId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ItemId" Type="Int32" Nullable="false" />
+          <Property Name="Quantity" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="TransactionDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="TypeId" Type="Int32" Nullable="false" />
+        </EntityType>
         <EntityType Name="UploadFile">
           <Key>
             <PropertyRef Name="UploadFileId" />
@@ -523,100 +841,108 @@
           <Property Name="SubCatagoryId" Type="Int32" />
           <Property Name="UploadFileImage" Type="Binary" MaxLength="Max" FixedLength="false" />
         </EntityType>
-      </Schema>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="UserName" />
+          </Key>
+          <Property Name="UserName" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="PassWord" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedDate" Type="DateTime" Precision="0" />
+          <Property Name="CreatedBy" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="UserImage" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="Locked" Type="Boolean" />
+          <Property Name="Note" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="SocialAccount1" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="SocialAccount2" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="SocialAccount3" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="SocialAccount4" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="VehicleMakeModel">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MakeName" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="VehicleModel">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MakeId" Type="Int32" />
+          <Property Name="VehicleName" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="MenuLeft">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="MenuName" />
+            <PropertyRef Name="ParentId" />
+            <PropertyRef Name="Locked" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" />
+          <Property Name="MenuName" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="ParentId" Type="Int32" Nullable="false" />
+          <Property Name="Locked" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_OrderDetails_Orders">
+          <End Type="RestaurantDBModel.Order" Role="Order" Multiplicity="1" />
+          <End Type="RestaurantDBModel.OrderDetail" Role="OrderDetail" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Order">
+              <PropertyRef Name="OrderId" />
+            </Principal>
+            <Dependent Role="OrderDetail">
+              <PropertyRef Name="OrderId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PRLines_PR">
+          <End Type="RestaurantDBModel.PR" Role="PR" Multiplicity="1" />
+          <End Type="RestaurantDBModel.PRLine" Role="PRLine" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PR">
+              <PropertyRef Name="PRNo" />
+            </Principal>
+            <Dependent Role="PRLine">
+              <PropertyRef Name="PRNo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <ComplexType Name="GetAllPR_Result">
+          <Property Type="Int32" Name="Id" Nullable="false" />
+          <Property Type="String" Name="PRNo" Nullable="false" MaxLength="6" />
+          <Property Type="String" Name="DeptCode" Nullable="false" MaxLength="2" />
+          <Property Type="DateTime" Name="PRDate" Nullable="true" />
+          <Property Type="String" Name="Reason" Nullable="true" MaxLength="Max" />
+          <Property Type="String" Name="RequestedBy" Nullable="true" MaxLength="40" />
+          <Property Type="DateTime" Name="RequestedDate" Nullable="true" />
+          <Property Type="String" Name="CheckedBy" Nullable="true" MaxLength="40" />
+          <Property Type="DateTime" Name="CheckedDate" Nullable="true" />
+          <Property Type="String" Name="ApprovedBy" Nullable="true" MaxLength="40" />
+          <Property Type="DateTime" Name="ApprovedDate" Nullable="true" />
+          <Property Type="Boolean" Name="CheckedStatus" Nullable="true" />
+          <Property Type="Boolean" Name="ApprovedStatus" Nullable="true" />
+          <Property Type="DateTime" Name="CreatedDate" Nullable="true" />
+          <Property Type="String" Name="CreatedBy" Nullable="true" MaxLength="40" />
+          <Property Type="Boolean" Name="Locked" Nullable="true" />
+          <Property Type="String" Name="Note" Nullable="true" MaxLength="Max" />
+        </ComplexType>
+        <EntityType Name="Department">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="DeptCode" />
+            <PropertyRef Name="DeptName" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DeptCode" Type="String" Nullable="false" MaxLength="3" FixedLength="false" Unicode="true" />
+          <Property Name="DeptName" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="true" />
+        </EntityType>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="RestaurantDBModelStoreContainer" CdmEntityContainer="RestaurantDBEntities">
-          <EntitySetMapping Name="Customers">
-            <EntityTypeMapping TypeName="RestaurantDBModel.Customer">
-              <MappingFragment StoreEntitySet="Customers">
-                <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
-                <ScalarProperty Name="CustomerName" ColumnName="CustomerName" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Items">
-            <EntityTypeMapping TypeName="RestaurantDBModel.Item">
-              <MappingFragment StoreEntitySet="Items">
-                <ScalarProperty Name="ItemId" ColumnName="ItemId" />
-                <ScalarProperty Name="ItemName" ColumnName="ItemName" />
-                <ScalarProperty Name="ItemPrice" ColumnName="ItemPrice" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PaymentTypes">
-            <EntityTypeMapping TypeName="RestaurantDBModel.PaymentType">
-              <MappingFragment StoreEntitySet="Payments">
-                <ScalarProperty Name="PaymentTypeId" ColumnName="PaymentTypeId" />
-                <ScalarProperty Name="PaymentTypeName" ColumnName="PaymentTypeName" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Employees">
-            <EntityTypeMapping TypeName="RestaurantDBModel.Employee">
-              <MappingFragment StoreEntitySet="Employees">
-                <ScalarProperty Name="EmailID" ColumnName="EmailID" />
-                <ScalarProperty Name="LastName" ColumnName="LastName" />
-                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
-                <ScalarProperty Name="EmployeeCode" ColumnName="EmployeeCode" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="OrderDetails">
-            <EntityTypeMapping TypeName="RestaurantDBModel.OrderDetail">
-              <MappingFragment StoreEntitySet="OrderDetails">
-                <ScalarProperty Name="Total" ColumnName="Total" />
-                <ScalarProperty Name="Discount" ColumnName="Discount" />
-                <ScalarProperty Name="UnitPrice" ColumnName="UnitPrice" />
-                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
-                <ScalarProperty Name="ItemId" ColumnName="ItemId" />
-                <ScalarProperty Name="OrderId" ColumnName="OrderId" />
-                <ScalarProperty Name="OrderDetailId" ColumnName="OrderDetailId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Orders">
-            <EntityTypeMapping TypeName="RestaurantDBModel.Order">
-              <MappingFragment StoreEntitySet="Orders">
-                <ScalarProperty Name="FinalTotal" ColumnName="FinalTotal" />
-                <ScalarProperty Name="OrderDate" ColumnName="OrderDate" />
-                <ScalarProperty Name="OrderNumber" ColumnName="OrderNumber" />
-                <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
-                <ScalarProperty Name="PaymentTypeId" ColumnName="PaymentTypeId" />
-                <ScalarProperty Name="OrderId" ColumnName="OrderId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Transactions">
-            <EntityTypeMapping TypeName="RestaurantDBModel.Transaction">
-              <MappingFragment StoreEntitySet="Transactions">
-                <ScalarProperty Name="TypeId" ColumnName="TypeId" />
-                <ScalarProperty Name="TransactionDate" ColumnName="TransactionDate" />
-                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
-                <ScalarProperty Name="ItemId" ColumnName="ItemId" />
-                <ScalarProperty Name="TransactionId" ColumnName="TransactionId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Users">
-            <EntityTypeMapping TypeName="RestaurantDBModel.User">
-              <MappingFragment StoreEntitySet="Users">
-                <ScalarProperty Name="SocialAccount4" ColumnName="SocialAccount4" />
-                <ScalarProperty Name="SocialAccount3" ColumnName="SocialAccount3" />
-                <ScalarProperty Name="SocialAccount2" ColumnName="SocialAccount2" />
-                <ScalarProperty Name="SocialAccount1" ColumnName="SocialAccount1" />
-                <ScalarProperty Name="Note" ColumnName="Note" />
-                <ScalarProperty Name="Locked" ColumnName="Locked" />
-                <ScalarProperty Name="UserImage" ColumnName="UserImage" />
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
-                <ScalarProperty Name="PassWord" ColumnName="PassWord" />
-                <ScalarProperty Name="UserName" ColumnName="UserName" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <FunctionImportMapping FunctionImportName="CreateEmployee" FunctionName="RestaurantDBModel.Store.CreateEmployee" />
           <FunctionImportMapping FunctionImportName="DeleteEmployee" FunctionName="RestaurantDBModel.Store.DeleteEmployee" />
           <FunctionImportMapping FunctionImportName="GetAllEmployee" FunctionName="RestaurantDBModel.Store.GetAllEmployee">
@@ -660,25 +986,6 @@
           </FunctionImportMapping>
           <FunctionImportMapping FunctionImportName="UnLockedUser" FunctionName="RestaurantDBModel.Store.UnLockedUser" />
           <FunctionImportMapping FunctionImportName="UpdateEmployee" FunctionName="RestaurantDBModel.Store.UpdateEmployee" />
-          <EntitySetMapping Name="Cities">
-            <EntityTypeMapping TypeName="RestaurantDBModel.City">
-              <MappingFragment StoreEntitySet="Cities">
-                <ScalarProperty Name="CityCode" ColumnName="CityCode" />
-                <ScalarProperty Name="CountryId" ColumnName="CountryId" />
-                <ScalarProperty Name="CityName" ColumnName="CityName" />
-                <ScalarProperty Name="CityId" ColumnName="CityId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Countries">
-            <EntityTypeMapping TypeName="RestaurantDBModel.Country">
-              <MappingFragment StoreEntitySet="Countries">
-                <ScalarProperty Name="CountryCode" ColumnName="CountryCode" />
-                <ScalarProperty Name="CountryName" ColumnName="CountryName" />
-                <ScalarProperty Name="CountryId" ColumnName="CountryId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <FunctionImportMapping FunctionImportName="CreateUploadFile" FunctionName="RestaurantDBModel.Store.CreateUploadFile" />
           <FunctionImportMapping FunctionImportName="DeleteUploadFile" FunctionName="RestaurantDBModel.Store.DeleteUploadFile" />
           <FunctionImportMapping FunctionImportName="GetAllUploadFile" FunctionName="RestaurantDBModel.Store.GetAllUploadFile">
@@ -704,6 +1011,246 @@
             </ResultMapping>
           </FunctionImportMapping>
           <FunctionImportMapping FunctionImportName="UpdateUploadFile" FunctionName="RestaurantDBModel.Store.UpdateUploadFile" />
+          <FunctionImportMapping FunctionImportName="CreateOrder" FunctionName="RestaurantDBModel.Store.CreateOrder" />
+          <FunctionImportMapping FunctionImportName="CreateOrderDetail" FunctionName="RestaurantDBModel.Store.CreateOrderDetail" />
+          <FunctionImportMapping FunctionImportName="DeleteOrder" FunctionName="RestaurantDBModel.Store.DeleteOrder" />
+          <FunctionImportMapping FunctionImportName="DeleteOrderDetail" FunctionName="RestaurantDBModel.Store.DeleteOrderDetail" />
+          <FunctionImportMapping FunctionImportName="GetAllCustomer" FunctionName="RestaurantDBModel.Store.GetAllCustomer">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="RestaurantDBModel.GetAllCustomer_Result">
+                <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
+                <ScalarProperty Name="CustomerName" ColumnName="CustomerName" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetAllItem" FunctionName="RestaurantDBModel.Store.GetAllItem">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="RestaurantDBModel.GetAllItem_Result">
+                <ScalarProperty Name="ItemId" ColumnName="ItemId" />
+                <ScalarProperty Name="ItemName" ColumnName="ItemName" />
+                <ScalarProperty Name="ItemPrice" ColumnName="ItemPrice" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetAllOrder" FunctionName="RestaurantDBModel.Store.GetAllOrder">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="RestaurantDBModel.GetAllOrder_Result">
+                <ScalarProperty Name="OrderId" ColumnName="OrderId" />
+                <ScalarProperty Name="PaymentTypeId" ColumnName="PaymentTypeId" />
+                <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
+                <ScalarProperty Name="OrderNumber" ColumnName="OrderNumber" />
+                <ScalarProperty Name="OrderDate" ColumnName="OrderDate" />
+                <ScalarProperty Name="FinalTotal" ColumnName="FinalTotal" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetAllOrderDetail" FunctionName="RestaurantDBModel.Store.GetAllOrderDetail">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="RestaurantDBModel.GetAllOrderDetail_Result">
+                <ScalarProperty Name="OrderDetailId" ColumnName="OrderDetailId" />
+                <ScalarProperty Name="OrderId" ColumnName="OrderId" />
+                <ScalarProperty Name="ItemId" ColumnName="ItemId" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="UnitPrice" ColumnName="UnitPrice" />
+                <ScalarProperty Name="Discount" ColumnName="Discount" />
+                <ScalarProperty Name="Total" ColumnName="Total" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetAllPaymentType" FunctionName="RestaurantDBModel.Store.GetAllPaymentType">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="RestaurantDBModel.GetAllPaymentType_Result">
+                <ScalarProperty Name="PaymentTypeId" ColumnName="PaymentTypeId" />
+                <ScalarProperty Name="PaymentTypeName" ColumnName="PaymentTypeName" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetByIdOrder" FunctionName="RestaurantDBModel.Store.GetByIdOrder">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="RestaurantDBModel.GetByIdOrder_Result">
+                <ScalarProperty Name="OrderId" ColumnName="OrderId" />
+                <ScalarProperty Name="PaymentTypeId" ColumnName="PaymentTypeId" />
+                <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
+                <ScalarProperty Name="OrderNumber" ColumnName="OrderNumber" />
+                <ScalarProperty Name="OrderDate" ColumnName="OrderDate" />
+                <ScalarProperty Name="FinalTotal" ColumnName="FinalTotal" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetByIdOrderDetail" FunctionName="RestaurantDBModel.Store.GetByIdOrderDetail">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="RestaurantDBModel.GetByIdOrderDetail_Result">
+                <ScalarProperty Name="OrderDetailId" ColumnName="OrderDetailId" />
+                <ScalarProperty Name="OrderId" ColumnName="OrderId" />
+                <ScalarProperty Name="ItemId" ColumnName="ItemId" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="UnitPrice" ColumnName="UnitPrice" />
+                <ScalarProperty Name="Discount" ColumnName="Discount" />
+                <ScalarProperty Name="Total" ColumnName="Total" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetByOrderIdOrderDetail" FunctionName="RestaurantDBModel.Store.GetByOrderIdOrderDetail">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="RestaurantDBModel.GetByOrderIdOrderDetail_Result">
+                <ScalarProperty Name="OrderDetailId" ColumnName="OrderDetailId" />
+                <ScalarProperty Name="OrderId" ColumnName="OrderId" />
+                <ScalarProperty Name="ItemId" ColumnName="ItemId" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="UnitPrice" ColumnName="UnitPrice" />
+                <ScalarProperty Name="Discount" ColumnName="Discount" />
+                <ScalarProperty Name="Total" ColumnName="Total" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="UpdateOrder" FunctionName="RestaurantDBModel.Store.UpdateOrder" />
+          <FunctionImportMapping FunctionImportName="UpdateOrderDetail" FunctionName="RestaurantDBModel.Store.UpdateOrderDetail" />
+          <FunctionImportMapping FunctionImportName="GetByIdCustomer" FunctionName="RestaurantDBModel.Store.GetByIdCustomer">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="RestaurantDBModel.GetByIdCustomer_Result">
+                <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
+                <ScalarProperty Name="CustomerName" ColumnName="CustomerName" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetByIdPaymentType" FunctionName="RestaurantDBModel.Store.GetByIdPaymentType">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="RestaurantDBModel.GetByIdPaymentType_Result">
+                <ScalarProperty Name="PaymentTypeId" ColumnName="PaymentTypeId" />
+                <ScalarProperty Name="PaymentTypeName" ColumnName="PaymentTypeName" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="Cities">
+            <EntityTypeMapping TypeName="RestaurantDBModel.City">
+              <MappingFragment StoreEntitySet="City">
+                <ScalarProperty Name="CityCode" ColumnName="CityCode" />
+                <ScalarProperty Name="CountryId" ColumnName="CountryId" />
+                <ScalarProperty Name="CityName" ColumnName="CityName" />
+                <ScalarProperty Name="CityId" ColumnName="CityId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Countries">
+            <EntityTypeMapping TypeName="RestaurantDBModel.Country">
+              <MappingFragment StoreEntitySet="Country">
+                <ScalarProperty Name="CountryCode" ColumnName="CountryCode" />
+                <ScalarProperty Name="CountryName" ColumnName="CountryName" />
+                <ScalarProperty Name="CountryId" ColumnName="CountryId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Customers">
+            <EntityTypeMapping TypeName="RestaurantDBModel.Customer">
+              <MappingFragment StoreEntitySet="Customer">
+                <ScalarProperty Name="CustomerName" ColumnName="CustomerName" />
+                <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Employees">
+            <EntityTypeMapping TypeName="RestaurantDBModel.Employee">
+              <MappingFragment StoreEntitySet="Employee">
+                <ScalarProperty Name="EmailID" ColumnName="EmailID" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="EmployeeCode" ColumnName="EmployeeCode" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Items">
+            <EntityTypeMapping TypeName="RestaurantDBModel.Item">
+              <MappingFragment StoreEntitySet="Item">
+                <ScalarProperty Name="ItemCode" ColumnName="ItemCode" />
+                <ScalarProperty Name="ItemPrice" ColumnName="ItemPrice" />
+                <ScalarProperty Name="ItemName" ColumnName="ItemName" />
+                <ScalarProperty Name="ItemId" ColumnName="ItemId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Orders">
+            <EntityTypeMapping TypeName="RestaurantDBModel.Order">
+              <MappingFragment StoreEntitySet="Order">
+                <ScalarProperty Name="FinalTotal" ColumnName="FinalTotal" />
+                <ScalarProperty Name="OrderDate" ColumnName="OrderDate" />
+                <ScalarProperty Name="OrderNumber" ColumnName="OrderNumber" />
+                <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
+                <ScalarProperty Name="PaymentTypeId" ColumnName="PaymentTypeId" />
+                <ScalarProperty Name="OrderId" ColumnName="OrderId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OrderDetails">
+            <EntityTypeMapping TypeName="RestaurantDBModel.OrderDetail">
+              <MappingFragment StoreEntitySet="OrderDetail">
+                <ScalarProperty Name="Total" ColumnName="Total" />
+                <ScalarProperty Name="Discount" ColumnName="Discount" />
+                <ScalarProperty Name="UnitPrice" ColumnName="UnitPrice" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="ItemId" ColumnName="ItemId" />
+                <ScalarProperty Name="OrderId" ColumnName="OrderId" />
+                <ScalarProperty Name="OrderDetailId" ColumnName="OrderDetailId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PaymentTypes">
+            <EntityTypeMapping TypeName="RestaurantDBModel.PaymentType">
+              <MappingFragment StoreEntitySet="PaymentType">
+                <ScalarProperty Name="PaymentTypeName" ColumnName="PaymentTypeName" />
+                <ScalarProperty Name="PaymentTypeId" ColumnName="PaymentTypeId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PRs">
+            <EntityTypeMapping TypeName="RestaurantDBModel.PR">
+              <MappingFragment StoreEntitySet="PR">
+                <ScalarProperty Name="DeptCode" ColumnName="DeptCode" />
+                <ScalarProperty Name="Note" ColumnName="Note" />
+                <ScalarProperty Name="Locked" ColumnName="Locked" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="ApprovedStatus" ColumnName="ApprovedStatus" />
+                <ScalarProperty Name="CheckedStatus" ColumnName="CheckedStatus" />
+                <ScalarProperty Name="ApprovedDate" ColumnName="ApprovedDate" />
+                <ScalarProperty Name="ApprovedBy" ColumnName="ApprovedBy" />
+                <ScalarProperty Name="CheckedDate" ColumnName="CheckedDate" />
+                <ScalarProperty Name="CheckedBy" ColumnName="CheckedBy" />
+                <ScalarProperty Name="RequestedDate" ColumnName="RequestedDate" />
+                <ScalarProperty Name="RequestedBy" ColumnName="RequestedBy" />
+                <ScalarProperty Name="Reason" ColumnName="Reason" />
+                <ScalarProperty Name="PRDate" ColumnName="PRDate" />
+                <ScalarProperty Name="PRNo" ColumnName="PRNo" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PRLines">
+            <EntityTypeMapping TypeName="RestaurantDBModel.PRLine">
+              <MappingFragment StoreEntitySet="PRLine">
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="PRLinesStatus" ColumnName="PRLinesStatus" />
+                <ScalarProperty Name="NeededDate" ColumnName="NeededDate" />
+                <ScalarProperty Name="QtyRequest" ColumnName="QtyRequest" />
+                <ScalarProperty Name="InStock" ColumnName="InStock" />
+                <ScalarProperty Name="UoM" ColumnName="UoM" />
+                <ScalarProperty Name="ItemName" ColumnName="ItemName" />
+                <ScalarProperty Name="ItemCode" ColumnName="ItemCode" />
+                <ScalarProperty Name="PRNo" ColumnName="PRNo" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Transactions">
+            <EntityTypeMapping TypeName="RestaurantDBModel.Transaction">
+              <MappingFragment StoreEntitySet="Transaction">
+                <ScalarProperty Name="TypeId" ColumnName="TypeId" />
+                <ScalarProperty Name="TransactionDate" ColumnName="TransactionDate" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="ItemId" ColumnName="ItemId" />
+                <ScalarProperty Name="TransactionId" ColumnName="TransactionId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="UploadFiles">
             <EntityTypeMapping TypeName="RestaurantDBModel.UploadFile">
               <MappingFragment StoreEntitySet="UploadFile">
@@ -716,6 +1263,83 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="RestaurantDBModel.User">
+              <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="SocialAccount4" ColumnName="SocialAccount4" />
+                <ScalarProperty Name="SocialAccount3" ColumnName="SocialAccount3" />
+                <ScalarProperty Name="SocialAccount2" ColumnName="SocialAccount2" />
+                <ScalarProperty Name="SocialAccount1" ColumnName="SocialAccount1" />
+                <ScalarProperty Name="Note" ColumnName="Note" />
+                <ScalarProperty Name="Locked" ColumnName="Locked" />
+                <ScalarProperty Name="UserImage" ColumnName="UserImage" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="PassWord" ColumnName="PassWord" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="VehicleMakeModels">
+            <EntityTypeMapping TypeName="RestaurantDBModel.VehicleMakeModel">
+              <MappingFragment StoreEntitySet="VehicleMakeModel">
+                <ScalarProperty Name="MakeName" ColumnName="MakeName" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="VehicleModels">
+            <EntityTypeMapping TypeName="RestaurantDBModel.VehicleModel">
+              <MappingFragment StoreEntitySet="VehicleModel">
+                <ScalarProperty Name="VehicleName" ColumnName="VehicleName" />
+                <ScalarProperty Name="MakeId" ColumnName="MakeId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MenuLefts">
+            <EntityTypeMapping TypeName="RestaurantDBModel.MenuLeft">
+              <MappingFragment StoreEntitySet="MenuLeft">
+                <ScalarProperty Name="Locked" ColumnName="Locked" />
+                <ScalarProperty Name="ParentId" ColumnName="ParentId" />
+                <ScalarProperty Name="MenuName" ColumnName="MenuName" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="GetAllPR" FunctionName="RestaurantDBModel.Store.GetAllPR">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="RestaurantDBModel.GetAllPR_Result">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="PRNo" ColumnName="PRNo" />
+                <ScalarProperty Name="DeptCode" ColumnName="DeptCode" />
+                <ScalarProperty Name="PRDate" ColumnName="PRDate" />
+                <ScalarProperty Name="Reason" ColumnName="Reason" />
+                <ScalarProperty Name="RequestedBy" ColumnName="RequestedBy" />
+                <ScalarProperty Name="RequestedDate" ColumnName="RequestedDate" />
+                <ScalarProperty Name="CheckedBy" ColumnName="CheckedBy" />
+                <ScalarProperty Name="CheckedDate" ColumnName="CheckedDate" />
+                <ScalarProperty Name="ApprovedBy" ColumnName="ApprovedBy" />
+                <ScalarProperty Name="ApprovedDate" ColumnName="ApprovedDate" />
+                <ScalarProperty Name="CheckedStatus" ColumnName="CheckedStatus" />
+                <ScalarProperty Name="ApprovedStatus" ColumnName="ApprovedStatus" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="Locked" ColumnName="Locked" />
+                <ScalarProperty Name="Note" ColumnName="Note" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="Departments">
+            <EntityTypeMapping TypeName="RestaurantDBModel.Department">
+              <MappingFragment StoreEntitySet="Department">
+                <ScalarProperty Name="DeptName" ColumnName="DeptName" />
+                <ScalarProperty Name="DeptCode" ColumnName="DeptCode" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="GetMaxPRNo" FunctionName="RestaurantDBModel.Store.GetMaxPRNo" />
           </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

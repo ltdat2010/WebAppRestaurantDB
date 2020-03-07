@@ -17,7 +17,9 @@
             "ajax": {
                 "type": "GET",
                 "datatype": "JSON",
-                "url": '/UploadFile/GetAll'
+                "contentType": "application/json; charset=utf-8",
+                //"url": '/UploadFile/GetAll'
+                "url": "@Url.Action("GetAll","UploadFile")"
             },
             "columns": [
                 { "data": "UploadFileId" },
@@ -45,7 +47,7 @@
 
         //button Edit inside dataTable
         $('#UploadFileList tbody').on('click', '#btnEdit', function () {
-            alert("View button click");
+            //alert("View button click");
             //Showing modal
             $('a[href="#modalFormViewPDF"]').trigger('click');
             //Catching data
@@ -549,23 +551,25 @@
         <div class="panel-body">
             <!-- Button Modal -->
             <a id="btnCreate" style="margin-bottom:10px" class="modal-with-form btn btn-primary" href="#modalFormCreateUploadFile">Upload file</a>
-
-            <table class="table table-bordered table-striped mb-none" id="UploadFileList">
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>File Name</th>
-                        <th>Path</th>
-                        <th>Version</th>
-                        <th>Catagory Id</th>
-                        <th hidden="hidden">Image</th>
-                        <th>Image Base64</th>
-                        @*<th>City</th>
-                            <th>Country</th>*@
-                        <th>Action</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-no-more table-bordered table-striped mb-none" id="UploadFileList">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>File Name</th>
+                            <th>Path</th>
+                            <th>Version</th>
+                            <th>Catagory Id</th>
+                            <th hidden="hidden">Image</th>
+                            <th>Image Base64</th>
+                            @*<th>City</th>
+                    <th>Country</th>*@
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            
         </div>
         <footer class="panel-footer"></footer>
     </section>

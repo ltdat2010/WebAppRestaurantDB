@@ -1,0 +1,767 @@
+﻿@using WebAppRestaurantDB.ViewModels;
+@model Tuple<PRViewModel, PRLineViewModel, IEnumerable<SelectListItem>, IEnumerable<ItemViewModel>>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        //Get department cho tag select
+        @*$.ajax({
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            url: "@Url.Action("GetAll", "Department")",
+            success: function (result) {            
+                $.each(result.data, function (i) {
+                    alert(result.data[i].Text);
+                    $('#slcDepartment').append(
+                        '<option value="' + result.data[i].Value + '">' + result.data[i].Text + '</option>'
+                    );
+                })    
+            }
+        });*@
+
+        //var _rowIdx;        
+
+        @*var itemList = @Html.Raw(Json.Encode(Model.Item4))*@         
+    
+        var table = $('#tblItem').dataTable({                
+                "ajax": {
+                    "type": "GET",
+                    "datatype": "JSON",
+                    "contentType": "application/json; charset=utf-8",
+                    "url": "@Url.Action("GetAll", "Item")"                     
+                }
+                ,
+                    columns: [
+                        {
+                            data: 'ItemCode'
+                        },
+                        {
+                            data: 'ItemName'                        
+                        },
+                        {
+                            data: 'OnHand'
+                        },
+                        {
+                            data: 'BuyUnitMsr'
+                        }
+                    ]                
+        }); 
+
+
+                
+        //var table = $('#tblItem').DataTable();               
+
+        $('#tblItem tbody').on('click', 'tr', function () {         
+            if ($(this).hasClass('selected')) {
+                $(this).removeClass('selected');
+            }
+            else {
+                table.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+                var data = $("#tblItem").DataTable().rows($(this).closest("tr")).data();
+                
+                $('#mdl_txtItemCode').val(data[0].ItemCode);
+                $('#mdl_txtItemName').val(data[0].ItemName);
+                $('#mdl_txtOnHand').val(data[0].OnHand);
+                $('#mdl_txtUoM').val(data[0].BuyUnitMsr);
+                $('#mdl_txtQtyRequest').val();
+                $('#mdl_dtpNeededDate').val();
+            }
+        }); 
+
+        $('#tblPRLine').DataTable({
+            "retrieve": true,
+            "paging": false,
+            "ordering": false,
+            "info": false,
+            "searching": false,
+            "autoWidth": true,
+            "responsive": true,
+            "bInfo": false
+            , "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" }            
+            , "destroy": true
+        })
+        
+        $('#modalFormAddanItem #btnModalSubmit').click(function () {
+            //Duyet qua cac dong select , sau do lay gia tri tung cell
+            var tblPRLine = $("#tblPRLine tbody");
+            //var data = $("#tblItem").DataTable().rows('.selected').data();
+
+            //for (var i = 0; i < data.length; i++) {
+            //    var itemLine;
+            //    itemPRLine = "<tr><td>" +
+            //        data[i].ItemCode +
+            //        "</td><td>" +
+            //        data[i].ItemName +
+            //        "</td><td>" +
+            //        data[i].OnHand +
+            //        "</td><td>" +
+            //        data[i].BuyUnitMsr +
+            //        "</td><td >" +
+            //        data[i].QtyNeeded +
+            //        "</td><td>" +
+            //        data[i].NeededDate +
+            //        //"</td><td > <input type='button' value='Select' name=' select' class=' btn btn-success btn-xs' onclick='SelectItem(this)' > <input type='button' id='btnRemove' value='Remove' name=' remove' class=' btn btn-danger  btn-xs' onclick='RemoveItem(this)' >" +
+            //        "</td><td > <button type='submit' id ='btnEdit' class=' btn btn-success btn-xs' onclick='RemoveItem(this)'><i class='fa fa-pencil'></i></button> <button type='submit' id ='btnRemove' class=' btn btn-danger btn-xs' onclick='SelectItem(this)'><i class='fa fa-trash-o'></i></button>" +
+            //        " </td></tr>";
+            //    tblPRLine.append(itemPRLine);
+
+
+            //}
+            var itemLine;
+                itemPRLine = "<tr><td>" +
+                    $('#mdl_txtItemCode').val() +
+                "</td><td>" +
+                    $('#mdl_txtItemName').val() +
+                "</td><td>" +
+                    $('#mdl_txtOnHand').val() +
+                "</td><td>" +
+                    $('#mdl_txtUoM').val() +
+                "</td><td >" +
+                    $('#mdl_txtQtyRequest').val() +
+                "</td><td>" +
+                    $('#mdl_dtpNeededDate').val() +                   
+                    "</td><td>" +
+                    "<button type='submit' id='btnEdit' class=' modal-with-form btn btn-warning btn-xs' href='#modalFormCreateEmployee' >" +
+                        "<i class='fa fa-pencil'></i>" +
+                    "</button> " +   
+                    " <button type='submit' id ='btnRemove' class=' btn btn-danger btn-xs' >" +
+                        "<i class='fa fa-trash-o'></i>" +
+                    "</button>" +
+                " </td></tr>";                    
+                      
+            var dt = $('#tblPRLine').dataTable().api();
+            dt.row.add($(itemPRLine));            
+            dt.draw();            
+
+            ResetitemPRLine()
+            ResetItem()
+
+            //Refresh dataTable
+            
+        });
+
+        $('#btnSave').click(function () {            
+            CreateNew()
+        });
+
+        $('#testmodal #btntestmodalsubmit').click(function () {            
+            UpdateItem($('#testmodal #mdl_txtQtyRequest1').val(), $('#testmodal #mdl_dtpNeededDate1').val());
+        })
+                    
+        //$('#testmodal').on('shown.bs.modal', function (e) {
+        //    //var data = $('#tblPRLine').DataTable().rows($(this).closest("tr")).data();
+        //    //console.log(data);
+        //    //$("#tblItem").DataTable().rows('.selected').each(function () {
+        //    //    $(this).removeClass('selected');
+        //    //    alert("remove");
+        //    //});
+
+        ////        // do something...
+        ////        for (var i = 0; i < itemList.length; i++) {       
+        ////        //  $('#slcItem').append('<option value="' + itemList[i].ItemCode + '" data-secondary-text="' + itemList[i].ItemCode + '">' + itemList[i].ItemName+' </option>');
+        ////        $('#tblItem').append(                   
+        ////            '<tr><td>'+
+        ////            itemList[i].ItemCode
+        ////            +'</td><td>'+
+        ////            itemList[i].ItemName
+        ////            + '</td><td>'+
+        ////            itemList[i].OnHand
+        ////            + '</td></tr>'
+        ////        )
+        ////    }          
+        //});      
+                
+        //$('#modal').on('show', function () {
+        //    $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+        //});
+
+        //$('#modal #slcItem').select2({
+        //    dropdownParent: $('#modal')
+        //});
+
+        //var counter = 1;
+
+        @*var _OrderList = $('#tblPR').dataTable({
+            "paging": false,
+            "ordering": false,
+            "info": false,
+            "searching":false,
+            "ajax": {
+                "order": [[1, "desc"]],
+                "type": "GET",
+                "datatype": "JSON",
+                "contentType": "application/json; charset=utf-8",
+                "url": "@Url.Action("GetAll","PR")"
+                //"success": function (data) {
+                //    console.log(data);
+                //}
+                //,
+                //"error": function () {
+                //    Alert("Please contact your admin. Thanks");
+                //}
+            }
+            ,
+            columns: [
+                {
+                    data: 'PRNo', title: 'PR Number',
+                    render: function (data) {
+                        return '<a id="btnModalCancel" style="margin-top:10px" class="input-sm" href="" >' + data + '</a>'
+                    }
+                },
+                { data: 'SelectedDepartment.DeptName', title: 'Department' },
+                { data: 'Reason', title: 'Reason' },
+                { data: 'RequestedBy', title: 'Requested' },
+                { data: 'RequestedDate', type: "datetime", title: 'Requested Date',
+                    render: function (data) {
+                        return moment(data).format('DD/MM/YYYY');
+                    }
+                },
+                { data: 'ApprovedStatus', title: 'Approved'
+                    ,
+                    render: function (data) {
+                        if (data === true) {
+                            return "<input type='button' value='Approved' name=' select' class=' btn btn-warning btn-xs fa-checked' onclick='SelectItem(this)' >" ;
+                        }
+                        else {
+                            return "<input type='button' value='Select' name=' select' class=' btn btn-success btn-xs' onclick='SelectItem(this)' > <input type='button' id='btnRemove' value='Remove' name=' remove' class=' btn btn-danger  btn-xs' onclick='RemoveItem(this)' >";
+                        }
+                    }
+                }
+                ,
+                //{ data: null, defaultContent: }
+            ]
+        });*@     
+
+        function ResetItem() {
+            $('#mdl_txtItemCode').val('');
+            $('#mdl_txtItemName').val('');
+            $('#mdl_txtOnHand').val('');
+            $('#mdl_txtUoM').val('');
+            $('#mdl_txtQtyRequest').val('');
+            $('#mdl_dtpNeededDate').val('');
+        }
+
+        function ResetitemPRLine() {
+            $("#tblItem tr").removeClass('selected');            
+        }
+
+        //button View inside dataTable
+        $('#datatable-editable tbody').on('click', '#btnRemove', function () {
+            RemoveItem($(this))
+        })       
+
+                              
+        //button Edit inside dataTable
+        $('#tblPRLine tbody').on('click', '#btnEdit', function () {                                                 
+            
+            _rowIdx = $(this).closest("tr").index();
+            //alert(_rowIdx);
+
+            var _data = $('#tblPRLine').DataTable().row(_rowIdx).data();
+            //console.log(_data);
+            var _data1 = $('#tblPRLine').DataTable().cell(_rowIdx, 4).data();
+            //console.log(_data1);
+            var _data2 = $('#tblPRLine').DataTable().cell(_rowIdx, 5).data();
+            //console.log(_data[0][0]);
+
+            ////pass data to modal
+            $('#testmodal #mdl_txtQtyRequest1').val(_data1);
+            $('#testmodal #mdl_dtpNeededDate1').val(_data2);            
+            //$('#modalFormCreateEmployee #LastName').val(data[0].LastName);
+            //$('#modalFormCreateEmployee #EmailID').val(data[0].EmailID);
+            //$('#modalFormCreateEmployee #CRUD').val("U");  
+
+            //Showing modal     
+            $('#testmodal').modal('show');            
+        })      
+
+        function CreateNew() {
+            //var _jSON = JSON.stringify(
+            //    {
+            //        "DeptCode": $('#txtDeptCode').val(),
+            //        "PRDate": $('#dtpdate').val(),
+            //        "Reason": $('#txtReason').val(),
+            //        "PRLines": {                    
+            //                        "ItemCode": $('#txtItemCode').val(),
+            //                        "ItemName": $('#txtItemName').val(),
+            //                        "UoM": $('#txtUoM').val(),
+            //                        "QtyRequest": $('#txtQtyRequest').val()
+            //                    }
+            //                    ,
+            //                    {
+            //                        "ItemCode": $('#txtItemCode').val(),
+            //                        "ItemName": $('#txtItemName').val(),
+            //                        "UoM": $('#txtUoM').val(),
+            //                        "QtyRequest": $('#txtQtyRequest').val()
+            //                    }
+                                    
+            //);     
+
+            var PRLines = [];
+            var data = $("#tblPRLine").DataTable().rows().data();
+
+            //console.log(data);
+            for (var i = 0; i < data.length; i++) {
+                var ItemCode;
+                var ItemName;
+                var UoM;
+                var QtyRequest;                
+                ItemCode = data[i][0];
+                ItemName = data[i][1];
+                UoM = data[i][3];
+                QtyRequest = data[i][4];
+                PRLines.push({                    
+                    "ItemCode": ItemCode,
+                    "ItemName": ItemName,
+                    "UoM": UoM,
+                    "QtyRequest": QtyRequest
+                })
+            }
+
+            var _jSON = JSON.stringify({
+                //"PRNo" : "200004",
+                "DeptCode": $('#txtDeptCode').val(),
+                "PRDate": $('#dtpdate').val(),
+                "Reason": $('#txtReason').val(),
+                PRLines
+                }
+            );
+            //console.log(_jSON);
+
+            $.ajax({
+                type: "POST",
+                dataType: "JSON",
+                contentType: "application/json; charset=utf-8",
+                data: _jSON,
+                url: "@Url.Action("CreateNew","PR")" ,
+                success: function (response) {                    
+                    if (response == true) {
+                        window.location = "/PR/PRIdx";
+                    }                    
+                }
+                ,
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("error");
+                }
+            })
+        }
+        
+        function RemoveItem(item) {
+            $(item).closest('tr').remove();           
+        }
+
+        function UpdateItem(QtyRequest, NeededDate) {
+            $('#tblPRLine').DataTable().cell({ row: _rowIdx, column: 4 }).data(QtyRequest);
+            $('#tblPRLine').DataTable().cell({ row: _rowIdx, column: 5 }).data(NeededDate);
+            //$('#tblPRLine').DataTable()
+            //    .rows({ selected: true })
+            //    .every(function (rowIdx, tableLoop, rowLoop) {
+            //        alert(rowIdx);
+            //        $('#tblPRLine').DataTable().cell(rowIdx, 2).data("999");
+            //        $('#tblPRLine').DataTable().cell(rowIdx, 3).data("04/03/2020");
+            //    })
+            //.draw();                        
+        }
+
+        $("#slcItem").select2({
+            width: '100%'
+        });
+
+    });
+</script>
+
+<style>
+    table.dataTable tbody th, table.dataTable tbody td {
+        padding: 1px 1px; /* e.g. change 8x to 4px here */
+        font-size: smaller;
+        text-align: left;
+    }
+
+    table.dataTable thead th, table.dataTable thead td {
+        padding: 1px 1px; /* e.g. change 8x to 4px here */
+        font-size: smaller;
+        font-weight: bold;
+        text-align: left;
+    }
+
+    #tblPRLine tbody th, #tblPRLine tbody td {
+        padding: 1px 1px;  e.g. change 8x to 4px here 
+        font-size: smaller;
+        text-align: left;
+    }
+
+    #tblPRLine thead th, #tblPRLine thead td {
+        padding: 1px 1px;  e.g. change 8x to 4px here 
+        font-size: smaller;
+        font-weight: bold;
+        text-align: left;
+    }
+
+    /*table {
+        margin: 0 auto;
+        width: 100%;
+        clear: both;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap:break-word;
+    }*/
+
+    #tblPRLine.dataTable thead th {
+        border-top: 0;
+        border-bottom: 0;
+    }
+
+    #tblPRLine.dataTable tfoot th {
+        border-top: 0;
+        border-bottom: 0;
+    }
+    table {
+        margin: 0 auto;
+        width: 100%;
+        min-width: 100%;
+        clear: both;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap: break-word;
+    }
+
+    td {
+        word-wrap: break-word
+    }
+
+    /*td {
+        word-wrap: break-word
+    }*/
+
+    /*.modal-dialog {
+      width: 80%;
+      height: 85%;
+      padding: 0;
+    }
+
+    .modal-content {
+      height: 100%;
+      border-radius: 0;
+    }*/
+ 
+
+</style>
+
+<section role="main" class=" content-body">
+    <header class=" page-header">
+        <h2>Purchase Requisition</h2>
+        <div class=" right-wrapper pull-right">
+            <ol class=" breadcrumb">
+                <li>
+                    <a href=" index.html">
+                        <i class=" fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>Order</span></li>
+                <li><span>List</span></li>
+            </ol>
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+        </div>
+        <input type="hidden" id="CRUD" value="C" class="form-control" hidden="hidden" disabled="disabled" />
+    </header>
+    <section class=" panel">
+        <header class="panel-heading">
+            <div class="panel-actions">
+                @*<a href="#" class="fa fa-caret-down"></a>
+                <a href="#" class="fa fa-times"></a>*@
+            </div>
+            <div class=" row">
+                <div class="col-sm-12">
+                    <a id="btnSave" style="margin-top:5px" class=" btn btn-danger btn-xs">Save</a>
+
+                </div>
+            </div>
+        </header>
+        <div class=" panel-body">
+            <div class="row">
+                <input type="hidden" id="CRUD" value="C" class="form-control" />
+                @*<div class="col-sm-4">
+                    <div class="form-group">
+                        <label name="Department"  class="form-control-xs">Department</label>
+                        <select id="slcDepartment" class="form-control form-control-xs input-sm" >
+                        </select>
+                    </div>
+                </div>*@
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        @Html.Label("Department", new { @class = "form-control-sm" })
+                        @Html.DropDownList("Department ", new SelectList(Model.Item3, "Value", "Text"), new { @id = "txtDeptCode", @class = " form-control form-control-xs input-sm" })
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Item1.PRDate)
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                            </span>
+                            <input id="dtpdate" data-plugin-masked-input data-input-mask="99/99/9999" placeholder="__/__/____" class="form-control form-control-xs input-sm">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("Lí do")
+                        <input type="text" id="txtReason" class="form-control form-control-sm input-sm" />
+                    </div>
+                </div>
+            </div>
+            @*<div class=" row">*@
+
+            @*</div>*@
+            <div class="row">
+                <div class="col-sm-12">
+                    <a id=" btnCreate" style="margin-top:10px;margin-bottom:0px" class=" modal-with-form btn btn-warning btn-xs" href="#modalFormAddanItem">Add an Item</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="table">
+                        <table class="table table-striped mb-none " id="tblPRLine">
+                            <thead>
+                                <tr>
+                                    <th>ItemCode</th>
+                                    <th>ItemName</th>
+                                    <th>OnHand</th>
+                                    <th>UoM</th>
+                                    <th>Qty</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>        
+        <footer class="panel-footer">            
+        </footer>
+    </section>
+
+    <!-- Modal Form Add PR Line-->
+    <div id="modalFormAddanItem" class="modal-block modal-block-md mfp-hide">
+        <section class="panel">
+            <header class="panel-heading">
+                <h2 class="panel-title">Purchase Requisition Line</h2>
+            </header>
+            <div class="panel-body">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <div class="table">
+                                <table class="table table-striped mb-none" id="tblItem">
+                                    <thead>
+                                        <tr>
+                                            <td>Item Code</td>
+                                            <td>Item Name</td>
+                                            <td>OnHand</td>
+                                            <td>UoM</td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                        <div class=" col-sm-4">
+                            <div class="row">
+                                <input type="hidden" id="CRUD" value="C" class="form-control" />
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label> Item Code :</label>
+                                        <input type="text" class="form-control input-sm" name="Item Code:" id="mdl_txtItemCode" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label> Item Name :</label>
+                                        <input type="text" class="form-control input-sm" id="mdl_txtItemName" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class=" row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label> On-hand :</label>
+                                        @*<select id="slcItem" data-plugin-selectTwo class="mdb-select md-form form-control populate">*@
+                                        <input type="text" class="form-control input-sm" id="mdl_txtOnHand" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label> UoM :</label>
+                                        <input type="text" class="form-control input-sm" id="mdl_txtUoM" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label> Quantity request :</label>
+                                        <input type="text" class="form-control input-sm" id="mdl_txtQtyRequest" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label> Needed date :</label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-calendar"></i>
+                                            </span>
+                                            <input id="mdl_dtpNeededDate" data-plugin-masked-input data-input-mask="99/99/9999" placeholder="__/__/____" class="form-control input-sm">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="panel-footer">
+                <div class="row">
+                    <div class="col-md-12 text-right">
+                        <input type="button" id="btnModalSubmit" class="btn btn-primary modal-confirm btn-xs" value="Submit">
+                        <input type="button" id="btnModalCancel" class="btn btn-danger modal-dismiss btn-xs" value="Cancel">
+                    </div>
+                </div>
+            </footer>
+        </section>
+    </div>
+    <!-- Modal Form Update PR Line Qty -->
+    <div id="modalFormEditPRLine" class="modal-block modal-block-sm mfp-hide">
+        <section class="panel">
+            @*<header class="panel-heading">
+                    <h2 class="panel-title">Edit PR Line</h2>
+                </header>*@
+            <div class="panel-body">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class=" col-sm-12">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label> Quantity request :</label>
+                                        <input type="text" class="form-control input-sm" id="mdl_txtQtyRequest" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label> Needed date :</label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-calendar"></i>
+                                            </span>
+                                            <input id="mdl_dtpNeededDate" data-plugin-masked-input data-input-mask="99/99/9999" placeholder="__/__/____" class="form-control input-sm">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="panel-footer">
+                <div class="row">
+                    <div class="col-md-12 text-right">
+                        <input type="button" id="btnModalSubmit" class="btn btn-primary modal-confirm btn-xs" value="Submit">
+                        <input type="button" id="btnModalCancel" class="btn btn-danger modal-dismiss btn-xs" value="Cancel">
+                    </div>
+                </div>
+            </footer>
+        </section>
+    </div>
+
+    <!-- Modal Form -->
+    <div id="modalFormCreateEmployee" class="modal-block modal-block-primary mfp-hide">
+        <section class="panel">
+            <header class="panel-heading">
+                <h2 class="panel-title">Registration Form</h2>
+            </header>
+            <div class="panel-body">
+                <div class="row">
+                    <input type="text" id="CRUD" value="C" class="form-control" />
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Text</label>
+                            <input type="text" />
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Text</label>
+                            <input type="text" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="panel-footer">
+                <div class="row">
+                    <div class="col-md-12 text-right">
+                        <button id="btnModalSubmit" class="btn btn-primary modal-confirm">Submit</button>
+                        <button id="btnModalCancel" class="btn btn-default modal-dismiss">Cancel</button>
+                    </div>
+                </div>
+            </footer>
+        </section>
+    </div>
+
+    <div class="modal" id="testmodal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <input hidden="hidden" type="text" id="CRUD" value="C" />
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label> Quantity request :</label>
+                                    <input type="text" class="form-control input-sm" id="mdl_txtQtyRequest1" />
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label> Needed date :</label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar"></i>
+                                        </span>
+                                        <input id="mdl_dtpNeededDate1" data-plugin-masked-input data-input-mask="99/99/9999" placeholder="__/__/____" class="form-control input-sm">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id ="btntestmodalsubmit"class="btn btn-primary btn-xs" data-dismiss="modal">Submit</button>
+                    <button type="button" class="btn btn-secondary btn-xs" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

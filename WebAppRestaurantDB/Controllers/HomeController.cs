@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using WebAppRestaurantDB.Models;
 using WebAppRestaurantDB.Repositories;
+using WebAppRestaurantDB.ViewModels;
 
 namespace WebAppRestaurantDB.Controllers
 {
@@ -21,15 +22,15 @@ namespace WebAppRestaurantDB.Controllers
             _customerReposistory = new CustomerRepository();
             _itemRepository = new ItemRepository();
             _paymentTypeRepository = new PaymentTypeRepository();
-        }        
+        }
 
         // GET: Home
         public ActionResult Index()
         {
-            
 
-            var allMultipleObject = new Tuple<IEnumerable<SelectListItem>, IEnumerable<SelectListItem>, IEnumerable<SelectListItem>>
-                                    (_customerReposistory.GetAllCustomers(), _itemRepository.GetAllItems(), _paymentTypeRepository.GetAllPaymentTypes());
+            var allMultipleObject = new Tuple<IEnumerable<SelectListItem>, IEnumerable<ItemViewModel>, IEnumerable<SelectListItem>>
+            //var allMultipleObject = new Tuple<IEnumerable<CustomerViewModel>, IEnumerable<ItemViewModel>, IEnumerable<PaymentTypeViewModel>>
+                                    (_customerReposistory.GetAll(), _itemRepository.GetAll(), _paymentTypeRepository.GetAll());
             return View(allMultipleObject);
         }
 
@@ -39,6 +40,15 @@ namespace WebAppRestaurantDB.Controllers
             decimal _unitPrice = _restaurantDBEntities.Items.Single(model => model.ItemId == itemId).ItemPrice;
             return Json(_unitPrice, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet]
+        public JsonResult GetAll()
+        {
+            var _listItems =_itemRepository.GetAll();
+            return Json(new { data = _listItems }, JsonRequestBehavior.AllowGet);
+        }
+
+
 
     }
 }

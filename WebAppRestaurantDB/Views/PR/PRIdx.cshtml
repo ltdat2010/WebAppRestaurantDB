@@ -1,0 +1,283 @@
+﻿@model WebAppRestaurantDB.ViewModels.PRViewModel
+
+<script type="text/javascript">
+    $(document).ready(function () {  
+        
+        $('#tblPR').dataTable({
+            "ajax": {  
+                
+                "type": "GET",
+                "datatype": "JSON",
+                "contentType": "application/json; charset=utf-8",
+                "url": "@Url.Action("GetAll", "PR")"               
+            }
+            ,            
+            columns: [
+                {
+                    data: 'PRNo', title: 'PR Number',
+                    render: function (data,type,row) {
+                        if (row.ApprovedStatus === true) {
+                            return '<a id="lnkReport" style="margin-top:10px" class="input-sm" >' + data + '</a>';
+                        }
+                        else {
+                            return '<a id="lnkEdit" style="margin-top:10px" class="input-sm" href="/PR/Edit?PRNo='+data+'"/>' + data + '</a>';
+                        }
+                    }
+                },                    
+                { data: 'SelectedDepartment.DeptName', title: 'Department'},
+                { data: 'Reason', title: 'Reason' },
+                { data: 'RequestedBy', title: 'Requested'  },
+                { data: 'RequestedDate', type: "datetime", title: 'Requested Date',
+                    render: function (data) {                        
+                        return moment(data).format('DD/MM/YYYY');
+                    }
+                },
+                { data: 'ApprovedStatus', title: 'Approved'
+                    ,
+                    render: function (data) {
+                        if (data === true) {
+                            return '<a id="btnApprove" class=" modal-with-form btn btn-success btn-xs" >Approved</a>';
+                        }
+                        else {
+                            return '<a id="btnUnApprove" class=" modal-with-form btn btn-warning btn-xs" >UnApproved</a>';
+                        }
+                    }
+                }                
+            ]
+            ,
+            columnDefs: [
+                { className: "_styleText", "targets": [0,1,2,3] },
+                { className: "_styleNumber", "targets": [4,5] }
+            ]
+        }); 
+
+        var table = $('#tblPR').DataTable();
+
+        $('#tblPR').css('display', 'table');
+
+        table.responsive.recalc();
+
+        $('#tblPR').DataTable()
+            .columns.adjust()
+            .responsive.recalc();
+
+        $('#btnCreate').click(function () {
+            document.location = '@Url.Action("Create", "PR")';            
+        }); 
+
+        $('#btnEdit').click(function () {
+            @*var data = "200001";
+            $.ajax({
+                type: 'POST',
+                dataType: 'JSON',
+                contentType: 'application/json; charset = utf-8',
+                data: data ,
+                url: '@Url.Action("GetAll", "PR")',
+                success: function () {
+                    alert("success");
+                    //$('#EmployeeID').val(result.EmployeeID);
+                    //$('#Name').val(result.Name);
+                    //$('#Age').val(result.Age);
+                    //$('#State').val(result.State);
+                    //$('#Country').val(result.Country);
+                    //$('#myModal').modal('show');
+                    //$('#btnUpdate').show();
+                    //$('#btnAdd').hide();
+                },
+                error: function (errormessage) {
+                    alert("error: "+ errormessage.responseText);
+                }
+            });*@
+        });
+
+        $('#tblPR tbody').on('click', '#lnkEdit', function () {                       
+            //Catching data
+            var data = $("#tblPR").DataTable().rows($(this).closest("tr")).data(); 
+            //alert(data[0].PRNo);
+        }); 
+
+        function getAmount() {
+            var url = "@Url.Action("GetAmount")";
+
+            $.get(url, function (data) {
+                $("#swearJar").html('$' + data);
+            });
+        }
+
+        //Edit Employee - Using Modal Form
+        function GetById(PRNo) {            
+            $.ajax({   
+                async: true,
+                type: 'GET',
+                dataType: 'JSON',
+                contentType: 'application/json; charset = utf-8',
+                data: { 'PRNo': PRNo },
+                url: '@Url.Action("Edit","PR")',
+                success: function (data) {                    
+                    location.reload(true);                   
+                }
+            });
+        }
+    });
+</script>
+
+<style>
+    table.dataTable tbody th, table.dataTable tbody td {
+        padding: 1px 1px; /* e.g. change 8x to 4px here */
+        font-size:smaller;
+        text-align:center;
+    }
+    table.dataTable thead th, table.dataTable thead td {
+        padding: 1px 1px; /* e.g. change 8x to 4px here */
+        font-size: smaller;
+        /*font-weight: bold;*/
+        text-align: center;
+    }
+    #tblPR tbody th, #tblPR tbody td {
+        padding: 1px 1px; /* e.g. change 8x to 4px here */
+        font-size: smaller;
+        text-align: center;
+    }
+    #tblPR thead th, #tblPR thead td {
+        padding: 1px 1px; /* e.g. change 8x to 4px here */
+        font-size: smaller;
+        font-weight: bold;
+        text-align: center;
+    }
+    table {
+        margin: 0 auto;
+        width: 100%;
+        min-width: 100%;
+        clear: both;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap: break-word;
+    }
+
+    td {
+        word-wrap: break-word;
+    }
+
+    ._styleText {
+        text-align: left !important;
+    }
+
+    ._styleNumber {
+        text-align: right !important;
+    }
+</style>
+
+<section role="main" class=" content-body">
+    <header class=" page-header">
+        <h2>Purchase requisition list</h2>
+        <div class=" right-wrapper pull-right">
+            <ol class=" breadcrumb">
+                <li>
+                    <a href=" index.html">
+                        <i class=" fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>Order</span></li>
+                <li><span>List</span></li>
+            </ol>
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+        </div>
+        <input type="hidden" id="CRUD" value="C" class="form-control" hidden="hidden" disabled="disabled" />
+    </header>
+    <section class=" panel">
+        <header class="panel-heading">
+            <div class="panel-actions">
+                @*<a href="#" class="fa fa-caret-down"></a>
+                <a href="#" class="fa fa-times"></a>*@
+            </div>
+            <a id="btnCreate" style="margin-bottom:5px" class=" modal-with-form btn btn-primary btn-xs">Create</a>
+        </header>
+        <div class=" panel-body">
+            @*<a id=" btnCreate" style="margin-bottom:10px" class=" modal-with-form btn btn-primary" href="#modalFormCreatePR">Create</a>*@
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="table ">
+                        <table class="table table-striped mb-none" id="tblPR">
+                            <thead>
+                                <tr>
+                                    <td class="_styleText" >PRNo</td>
+                                    <td class="_styleText" >DeptCodeRequested</td>
+                                    <td class="_styleText" >PRDate</td>
+                                    <td class="_styleText" >RequestedBy</td>
+                                    <td class="_styleNumber" >RequestedDate</td>
+                                    <td class="_styleNumber">ApprovedStatus</td>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="panel-footer"></footer>
+    </section>
+
+    <!-- Modal Form -->
+    @*<div id="modalFormCreatePR" style="max-width:85%" class="modal-block modal-block-primary mfp-hide">
+        <section class="panel" >
+            <header class="panel-heading">
+                <h2 class="panel-title">Registration Form</h2>
+            </header>
+            <div class="panel-body">
+                <div class="row">
+                    <input type="hidden" id="CRUD" value="C" class="form-control" />
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.PRNo)
+                            @Html.TextBoxFor(m => m.PRNo, new { @id = "txtPRNo", @class = " form-control" })
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.SelectedDepartment.DeptCode)
+                            @Html.DropDownListFor(m => m.SelectedDepartment.DeptCode, Model.Departments, new { @id = "txtDeptCode", @class = " form-control" })
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.PRDate)
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </span>
+                                <input id="dtpdate" data-plugin-masked-input data-input-mask="99/99/9999" placeholder="__/__/____" class="form-control">
+                            </div>
+                        </div>
+                    </div>                    
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Reason)
+                            @Html.TextBoxFor(m => m.Reason, new { @id = "txtReason", @class = " form-control" })
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+            <footer class="panel-footer">
+                <div class="row">
+                    <div class="col-md-12 text-right">
+                        <button id="btnModalSubmit" class="btn btn-primary modal-confirm">Submit</button>
+                        <button id="btnModalCancel" class="btn btn-default modal-dismiss">Cancel</button>
+                    </div>
+                </div>
+            </footer>
+        </section>
+    </div>*@
+
+    @*<section class="panel">
+            <div class="row">
+                <label>Make:</label>
+                @Html.DropDownListFor(m => m.DeptCodeRequested, Model.Department, "please select", new { id = "ddlPaymentType", @class = "form-control" })
+                <input type="button" id="btntest" value="Test" name="Test" class="form-control btn btn-primary" />
+                <br />
+            </div>
+        </section>*@
+
+</section>

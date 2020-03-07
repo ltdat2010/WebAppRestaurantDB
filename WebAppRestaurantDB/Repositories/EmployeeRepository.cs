@@ -10,6 +10,7 @@ using WebAppRestaurantDB.Models;
 using System.Configuration;
 using System.Data;
 using WebAppRestaurantDB.Models;
+using WebAppRestaurantDB.ViewModels;
 
 namespace WebAppRestaurantDB.Repositories
    
@@ -20,39 +21,46 @@ namespace WebAppRestaurantDB.Repositories
         //Employee _employee;
         //Connection string name : RestaurantDBSQL
         SqlConnection _sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["RestaurantDBSQL"].ConnectionString);
+        
 
         public EmployeeRepository()
         {
             //_restaurantDBEntities = new RestaurantDBEntities();
             //_employee =new Employee();
+            
         }
 
 
-        //GetAll
-        public IEnumerable<Employee> GetAll()
+        //GetAll        
+        public IEnumerable<EmployeeViewModel> GetAll()
         {
-            List<Employee> _employeeList = new List<Employee>();
+            List<EmployeeViewModel> _employeeList = new List<EmployeeViewModel>();
             //Store Procedure
             SqlCommand _sqlCommand = new SqlCommand("GetAllEmployee", _sqlConnection);
             _sqlCommand.CommandType = CommandType.StoredProcedure;
 
-            string content = _sqlCommand.CommandText.ToString();
-            System.IO.File.WriteAllText(@"D:\WebestaurantDB_CommandText_WriteText.txt", content);
+            //string content = _sqlCommand.CommandText.ToString();
+            //System.IO.File.WriteAllText(@"D:\WebestaurantDB_CommandText_WriteText.txt", content);
 
             _sqlConnection.Open();
             SqlDataReader _sqlDataReader = _sqlCommand.ExecuteReader();
             while (_sqlDataReader.Read())
             {
                 var _employee = new Employee();
+                var _employeeViewModel = new EmployeeViewModel();
                 _employee.EmployeeCode = _sqlDataReader["EmployeeCode"].ToString();
                 _employee.FirstName = _sqlDataReader["FirstName"].ToString();
                 _employee.LastName = _sqlDataReader["LastName"].ToString();
                 _employee.EmailID = _sqlDataReader["EmailID"].ToString();
                 //_employee.City = _sqlDataReader["City"].ToString();
                 //_employee.Country = _sqlDataReader["Country"].ToString();
+                //MapsterMapper
+                _employeeViewModel.EmployeeCode = _employee.EmployeeCode;
+                _employeeViewModel.FirstName = _employee.FirstName;
+                _employeeViewModel.LastName = _employee.LastName;
+                _employeeViewModel.EmailID = _employee.EmailID;
 
-                _employeeList.Add(_employee);
-                
+                _employeeList.Add(_employeeViewModel);                
             }
             _sqlConnection.Close();
 

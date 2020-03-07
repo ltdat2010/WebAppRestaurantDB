@@ -9,35 +9,65 @@
 }
 
 <script type="text/javascript">
-
+    //var dataSet = [
+    //    ["Tiger Nixon", "System Architect", "Edinburgh", "5421", "2011/04/25", "$320,800"],
+    //    ["Garrett Winters", "Accountant", "Tokyo", "8422", "2011/07/25", "$170,750"],    
+    //];
     $(document).ready(function () {
-        //var dataSet = [
-        //    ["Tiger Nixon", "System Architect", "Edinburgh", "5421", "2011/04/25", "$320,800"],
-        //    ["Garrett Winters", "Accountant", "Tokyo", "8422", "2011/07/25", "$170,750"],
-        //    ["Ashton Cox", "Junior Technical Author", "San Francisco", "1562", "2009/01/12", "$86,000"],
-        //    ["Cedric Kelly", "Senior Javascript Developer", "Edinburgh", "6224", "2012/03/29", "$433,060"]
-        //];
         //Hidden CRUD
         $('#CRUD').hide();
 
-        var _employeeList = $("#EmployeeList").dataTable({
-            ////--data
-            //data: dataSet
+        //$('#example').DataTable({
+        //    data: dataSet,
+        //    columns: [
+        //        { title: "Name" },
+        //        { title: "Position" },
+        //        { title: "Office" },
+        //        { title: "Extn." },
+        //        { title: "Start date" },
+        //        { title: "Salary" }
+        //    ]
+        //});
+
+        //var dataSet = [
+        //    ["Tiger Nixon", "System Architect", "2011/04/25", "$320,800"],
+        //    ["Garrett Winters", "Accountant", "2011/07/25", "$170,750"],
+        //    ["Ashton Cox", "Junior Technical Author", "2009/01/12", "$86,000"],
+        //    ["Cedric Kelly", "Senior Javascript Developer", "2012/03/29", "$433,060"]
+        //];        
+        var _employeeList = $('#EmployeeList').dataTable({
             "ajax": {
                 "type": "GET",
                 "datatype": "JSON",
-                "url": '/Employee/GetAll'
-            },
+                "contentType": "application/json; charset=utf-8",
+                //"url": "/Employee/GetAll"
+                "url": "@Url.Action("GetAll", "Employee")"
+                //Test datasrc
+                //"dataSrc": function (d) {
+                //    var data = [];
+                //    for (var item in d.pairs) {
+                //        data.push(d.pairs[item])
+                //    }
+                //    return data
+                //}
+                //"dataSrc": "tableData"
+
+            },            
+            //data : dataset,
             ////--column
-            "columns": [
-                { "data": "EmployeeCode" },
-                { "data": "FirstName" },
-                { "data": "LastName" },
-                { "data": "EmailID" },
+            columns: [
+                { data: 'EmployeeCode', title: 'EmployeeCode' },
+                { data: 'FirstName', title: 'FirstName' },
+                { data: 'LastName', title: 'LastName' },
+                { data: 'EmailID', title: 'EmailID' }
+                ,
+                {
+                    data: null, defaultContent:'<a id="btnEdit" class="btn btn-success"> Edit </a>'
+                        //"<button id='btnEdit'>Click!</button>"
+                }
                 //{ "data": "City" },
-                //{ "data": "Country" },
-                { "date": null, "defaultContent": "<button type='button' id='btnEdit' class='btn btn-primary btn-xs dt-edit' style='margin - right: 16px; '><span class='glyphicon glyphicon-pencil' aria-hidden='true'></span></button> <button type='button' id='btnDelete' class='btn btn-danger btn-xs dt-delete '><span class='glyphicon glyphicon - remove glyphicon-trash' aria-hidden='true'></span></button> "}
-            ]
+                //{ "data": "Country" },               
+            ]           
         });
 
         //button inside dataTable
@@ -114,7 +144,8 @@
             //data: The data to send to the server when performing the Ajax request
             data: _jSON,
             //url: A string containing the URL to which the request is sent
-            url: '/employee/create',
+            //url: '/employee/create',
+            url: "@Url.Action("create","employee")",
             //success: A function to be called if the request succeeds
             success: function (dataURL) {
                 @*alert("You will now be redirected.");
@@ -453,7 +484,7 @@
         </header>
         <div class="panel-body">
             <!-- Button Modal -->
-            <a id ="btnCreate" style="margin-bottom:10px" class="modal-with-form btn btn-primary" href="#modalFormCreateEmployee">Create</a>
+            <a id="btnCreate" style="margin-bottom:10px" class="modal-with-form btn btn-primary" href="#modalFormCreateEmployee">Create</a>
 
             <!-- default octopus ui template-->
             @*<table class="table table-bordered table-striped mb-none" id="datatable-default">
@@ -476,22 +507,27 @@
                         </tr>
                     </tbody>
                 </table>*@
-            <table class="table table-bordered table-striped mb-none" id="EmployeeList">
-                <thead>
-                    <tr>
-                        <th>EmployeeCode</th>
-                        <th>FirstName</th>
-                        <th>LastName</th>
-                        <th>EmailID</th>
-                        @*<th>City</th>
-                            <th>Country</th>*@
-                        <th>Action</th>
-                    </tr>
-                </thead>
-            </table>
+            @*<table id="example" class="display" width="100%"></table>*@
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-condensed mb-none" id="EmployeeList">
+                    <thead>
+                        <tr>
+                            <th>EmployeeCode</th>
+                            <th>FirstName</th>
+                            <th>LastName</th>
+                            <th>EmailID</th>
+                            <th>Action</th>
+                            @*<th>City</th>
+                                    <th>Country</th>
+                                <th>Action</th>*@
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
         <footer class="panel-footer"></footer>
     </section>
+    
     <!-- Modal Form -->
     <div id="modalFormCreateEmployee" class="modal-block modal-block-primary mfp-hide">
         <section class="panel">
@@ -527,7 +563,7 @@
                     </form>*@
 
                 <div class="row">
-                    <input type="text" id="CRUD" value="C" class="form-control" />
+                    <input hidden="hidden" type="text" id="CRUD" value="C" />
                     <div class="col-sm-6">
                         <div class="form-group">
                             @Html.LabelFor(m => m.EmployeeCode)

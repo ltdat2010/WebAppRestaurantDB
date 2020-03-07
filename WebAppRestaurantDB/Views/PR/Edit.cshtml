@@ -1,0 +1,403 @@
+﻿@model WebAppRestaurantDB.ViewModels.PRViewModel
+<script type="text/javascript">
+    https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //Index của row được chọn
+        var _rowIdx;
+
+        var tbl = $('#tblPR').DataTable({
+            "paging": false,
+            "ordering": false,
+            "info": false,
+            "searching": false,
+            "autoWidth": true,
+            "responsive": true,
+            "bInfo": false
+            //, "bLengthChange": false
+            //, "bFilter": false
+            //, "bPaginate": false
+            //, "bSort": false
+            , "oLanguage": { "sZeroRecords": "", "sEmptyTable": "" }
+        });
+
+        var myArray = JSON.parse('@Html.Raw(Json.Encode(@Model.PRLines))');
+        //console.log(myArray);
+
+        var tblRestaurantItemList = $("#tblPR");
+
+        $.each(myArray, function (index, item) {
+            //console.log("Agent Id: " + item.PRNo);
+            //console.log("Agent Name: " + item.ItemCode);
+            //console.log("Agent Id: " + item.ItemName);
+            //console.log("Agent Name: " + item.UoM);
+            //console.log("Agent Id: " + item.InStock);
+            //console.log("Agent Id: " + item.QtyRequest);
+
+            var itemLine = "<tr><td>" +
+                item.Id +
+                "</td><td>" +
+                item.SelectedItemCode +
+                "</td><td>" +
+                item.SelectedItemName +
+                "</td><td>" +
+                item.UoM +
+                "</td><td>" +
+                item.InStock +
+                "</td><td>" +
+                item.QtyRequest +
+                "</td><td>" +
+                moment(item.NeededDate).format("DD/MM/YYYY") +
+                "</td><td>" +
+                item.PRLinesStatus +
+                "</td><td>" +
+                item.Price +
+                "</td><td> <button type='submit' id='btnEdit' class=' modal-with-form btn btn-warning btn-xs' href='#modalConfirmDelete'><i class='fa fa-pencil'></i></button> <button type='button' id='btnRemove' class='mb-xs mt-xs mr-xs btn btn-danger btn-xs' href='#modalConfirmDelete'><i class='fa fa-trash-o'></i> </button></td></tr>";
+            
+            var dt = $('#tblPR').dataTable().api();
+            dt.row.add($(itemLine));
+            dt.draw();        
+        });      
+        $('#modalFormAddanItem #btnModalSubmit').click(function () {
+            AddItemToList()
+        });
+
+
+        //Delete PRlIne in database
+        $('#tblPR tbody').on('click', '#btnRemove', function () {
+            _rowIdx = $(this).closest("tr").index();            
+
+            var _pRLineId = $('#tblPR').DataTable().cell(_rowIdx, 0).data();     
+            //Show modal xac nhan co muon delete hay khong
+            $('#modalConfirmDelete').modal('show');    
+            
+            $('#lblpRLineId').val(_pRLineId);
+        });
+
+        $('#modalConfirmDelete #btnmodalConfirmDeleteSubmit').click(function () {        
+            
+            //Remove tren view DataTable
+            RemoveItem($(this))
+            //Remove trên database
+            DeleteItem($('#lblpRLineId').val())
+        });
+
+        function RemoveItem(item) {
+            $(item).closest('tr').remove();
+
+            /*
+            $("#tblReastaurantItemList").on('click', '.remove', function () {
+                $(this).closest('tr').remove();
+            });*/
+        };
+
+        function DeleteItem(pRLineId) {
+            $.ajax({
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({ pRLineId: pRLineId }),
+                dataType:"JSON",
+                url: "@Url.Action("Delete", "PRLine")",
+                success: function () {
+                    window.location.reload();
+                },
+                error: function () {
+                    alert("Error");
+                }
+            })
+        };
+
+        //button View inside dataTable
+        $('#tblPR tbody').on('click', '#btnEdit', function () {
+            
+        });
+
+
+        //$('#btnCreate').click(function () {
+        //    alert("CC");
+        //})
+
+        function AddItemToList() {
+            //var tblRestaurantItemList = $("#tblReastaurantItemList");
+            //var itemName = $("#Item option:selected").text();
+            //var itemId = $("#Item").val();
+            //var unitPrice = $("#UnitPrice").val();
+            //var quantity = $("#Quantity").val();
+            //var discount = $("#Discount").val();
+            //var total = unitPrice * quantity - discount; //$("#Total").val();
+            
+
+            var itemLine = "<tr><td hidden>" +
+                itemId +
+                "</td><td>" +
+                itemName +
+                "</td><td>" +
+                quantity +
+                "</td><td>" +
+                unitPrice +
+                "</td><td>" +
+                discount +
+                "</td><td>" +
+                total +
+                "</td><td>" +
+                discount +
+                "</td><td>" +
+                total +
+                "</td><td> <input type='button' value='Select' name=' select' class=' btn btn-success btn-xs' onclick='SelectItem(this)' > <input type='button' id='btnRemove' value='Remove' name=' remove' class=' btn btn-danger  btn-xs' onclick='RemoveItem(this)' ></td></tr>";
+            tblRestaurantItemList.append(itemLine);
+            FinalTotal();
+            ResetItem();
+
+            //tbl.row.add([
+            //    counter + '.1',
+            //    counter + '.2',
+            //    counter + '.3',
+            //    counter + '.4',
+            //    counter + '.5',
+            //    counter + '.6'
+            //]).draw(false);
+
+            //counter++;
+        }
+        
+
+
+
+
+    });
+</script>
+
+<style>
+    table.dataTable tbody th, table.dataTable tbody td {
+        padding: 1px 1px; /* e.g. change 8x to 4px here */
+        font-size: smaller;
+        text-align: center;
+    }
+
+    table.dataTable thead th, table.dataTable thead td {
+        padding: 1px 1px; /* e.g. change 8x to 4px here */
+        font-size: smaller;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    #tblPR tbody th, #tblPR tbody td {
+        padding: 1px 1px; /* e.g. change 8x to 4px here */
+        font-size: smaller;
+        text-align: center;
+    }
+
+    #tblPR thead th, #tblPR thead td {
+        padding: 1px 1px; /* e.g. change 8x to 4px here */
+        font-size: smaller;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    table {
+        margin: 0 auto;
+        width: 100%;
+        min-width:100%;
+        clear: both;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap:break-word;
+    }
+
+    td {
+        word-wrap: break-word;
+    }
+</style>
+
+<section role="main" class=" content-body">
+    <header class=" page-header">
+        <h2>Purchase Requisition</h2>
+        <div class=" right-wrapper pull-right">
+            <ol class=" breadcrumb">
+                <li>
+                    <a href=" index.html">
+                        <i class=" fa fa-home"></i>
+                    </a>
+                </li>
+                <li><span>Order</span></li>
+                <li><span>List</span></li>
+            </ol>
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
+        </div>
+        <input type="hidden" id="CRUD" value="C" class="form-control" hidden="hidden" disabled="disabled" />
+    </header>
+    <section class=" panel">
+        <header class="panel-heading">
+            <div class="panel-actions">
+                @*<a href="#" class="fa fa-caret-down"></a>
+                    <a href="#" class="fa fa-times"></a>*@
+            </div>
+            <div class=" row">
+                <div class="col-sm-12">
+                    <a id="btnSave" style="margin-top:5px" class=" modal-with-form btn btn-danger btn-xs">Save</a>
+                </div>
+            </div>
+        </header>
+        <div class=" panel-body">
+
+            <div class="row">
+                <input type="hidden" id="CRUD" value="C" class="form-control" />
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.PRNo, new { @class = "form-control-sm" })
+                        @Html.TextBoxFor(m => m.PRNo, new { @id = "txtPRNo", @class = "form-control form-control-sm input-sm" })
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.SelectedDeptCode, new { @class = "form-control-sm" })
+                        @Html.DropDownListFor(m => m.SelectedDeptCode, Model.Departments, new { @id = "txtDeptCode", @class = " form-control form-control-sm input-sm" })
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.PRDate)
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                            </span>
+                            <input id="dtpdate" value="@Model.RequestedDate" data-plugin-masked-input data-input-mask="99/99/9999" placeholder="__/__/____" class="form-control input-sm">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Reason)
+                        @Html.TextBoxFor(m => m.Reason, new { @id = "txtReason", @class = "form-control input-sm" })
+                    </div>
+                </div>
+            </div>
+            <div class=" row">
+                <div class="col-sm-12">
+                    <a id=" btnCreate" style="margin-top:0px;margin-bottom:0px" class=" modal-with-form btn btn-warning btn-xs" href="#modalFormAddanItem">Add an Item</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table  table-striped  mb-none" id="tblPR">
+                            <thead>
+                                <tr>
+                                    <td>Id</td>
+                                    <td>ItemCode</td>
+                                    <td>ItemName</td>
+                                    <td>UoM</td>
+                                    <td>InStock</td>
+                                    <td>QtyRequest</td>
+                                    <td>NeededDate</td>
+                                    <td>PRLinesStatus</td>
+                                    <td>Price</td>
+                                    <td>Action</td>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="panel-footer"></footer>
+    </section>
+
+    <!-- Modal Form -->
+    <div id="modalFormAddanItem" style="max-width:85%" class="modal-block modal-block-primary mfp-hide">
+        <section class="panel">
+            <header class="panel-heading">
+                <h2 class="panel-title">Purchase Requisition Line</h2>
+            </header>
+            <div class="panel-body">
+                <div class="row">
+                    <input type="hidden" id="CRUD" value="C" class="form-control" />
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.PRNo)
+                            @Html.TextBoxFor(m => m.PRNo, new { @id = "txtPRNo", @class = " form-control input-xs" })
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.SelectedDepartment.DeptCode)
+                            @Html.DropDownListFor(m => m.SelectedDepartment.DeptCode, Model.Departments, new { @id = "txtDeptCode", @class = " form-control" })
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.PRDate)
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </span>
+                                <input id="dtpdate" data-plugin-masked-input data-input-mask="99/99/9999" placeholder="__/__/____" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Reason)
+                            @Html.TextBoxFor(m => m.Reason, new { @id = "txtReason", @class = " form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="panel-footer">
+                <div class="row">
+                    <div class="col-md-12 text-right">
+                        <input type="button" id="btnModalConfirmDeleteSubmit" class="btn btn-primary modal-confirm btn-xs" value="Submit">
+                        <input type="button" id="btnModalConfirmDeleteCancel" class="btn btn-danger modal-dismiss btn-xs" value="Cancel">
+
+                        @*<a id="btnModalSubmit" style="margin-top:10px" class=" modal-with-form btn btn-success btn-xs modal-confirm" >Submit</a>
+                            <a id="btnModalCancel" style="margin-top:10px" class=" modal-with-form btn btn-danger btn-xs  modal-dismiss" >Cancel</a>*@
+                    </div>
+                </div>
+            </footer>
+        </section>
+    </div>
+
+    @*Confirm delete*@
+    <div class="modal" id="modalConfirmDelete" tabindex="-1" role="dialog">
+        <div class="modal-dialog  modal-block-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xóa</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">                    
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label id="lblpRLineId" hidden="hidden"></label>
+                                Bạn có muốn xóa dòng dữ liệu này ?
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnmodalConfirmDeleteSubmit" class="btn btn-primary btn-xs" data-dismiss="modal">Có</button>
+                    <button type="button" class="btn btn-secondary btn-xs" data-dismiss="modal">Không</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*<section class="panel">
+
+            <div class="row">
+                <label>Make:</label>
+                @Html.DropDownListFor(m => m.DeptCodeRequested, Model.Department, "please select", new { id = "ddlPaymentType", @class = "form-control" })
+                <input type="button" id="btntest" value="Test" name="Test" class="form-control btn btn-primary" />
+                <br />
+            </div>
+        </section>*@
+</section>

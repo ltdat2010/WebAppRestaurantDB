@@ -28,7 +28,7 @@ namespace WebAppRestaurantDB.Controllers
         public JsonResult GetAll()
         {            
             var AllObj = _employeeRepository.GetAll();
-            return Json(new { data = AllObj }, JsonRequestBehavior.AllowGet);
+            return Json(new { data = AllObj}, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
